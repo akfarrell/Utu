@@ -155,6 +155,19 @@ if strcmp(name, 'KTSZ1')
     tshift(11) = tshift(11)+1.1000;
     tshift(13) = tshift(13)+1.1000;
     tshift(14) = tshift(14)+1.1500;
+elseif strcmp(name, 'KTSZ4')
+    tshift(1) = tshift(1)-3.500;
+    tshift(2) = tshift(2)-3.500;
+    tshift(3) = tshift(3)-5.500;
+    tshift(7) = tshift(7)-3.500;
+    tshift(12) = tshift(12)-3.500;
+    tshift(17) = tshift(17)-3.500;
+    tshift(18) = tshift(18)-3.500;
+    tshift(19) = tshift(19)-3.500;
+    tshift(21) = tshift(21)-3.500;
+    for i=1:numel(tshift)
+        tshift(i) = tshift(i)+3.500;
+    end
 end
 %plot(C);
 %figure 5

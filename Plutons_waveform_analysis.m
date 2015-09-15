@@ -5,7 +5,7 @@ clear all
 close all
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 4;
+earthquake_number = 5;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 %ESZ1
@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.1875 3];
+fil=[0.375 1.5];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -179,9 +179,9 @@ for l = 2:numel(data)
 end
 if strcmp(eq(earthquake_number).name, 'KTSZ1')
     data = data(1:300);
-elseif strcmp(eq(earthquake_number).name, 'KTSZ3')
+elseif strcmp(eq(earthquake_number).name, 'KTSZ3') || strcmp(eq(earthquake_number).name, 'KTSZ4')
     data = data(1:500);
-    if strcmp(eq(earthquake_number).name, 'KTSZ3')
+    if strcmp(eq(earthquake_number).name, 'KTSZ3') || strcmp(eq(earthquake_number).name, 'KTSZ4')
         [ref_amp, ref_index] = nanmax(data)
     else
         [ref_amp, ref_index] = nanmin(data)
@@ -312,6 +312,7 @@ for i=1:length(stas)
     fprintf(dif,'%s %10.5f %10.3f %10.4f\n',stas(i,:),Q(i),sig_freq(i), slowness(i));
     i
 end
+st = fclose('all');
 
 %%
 close all
