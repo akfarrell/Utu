@@ -93,14 +93,13 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         if wavnum<nwaveforms
            set(gca,'XTickLabel',['']);
         end
-        
         time_value = tshift(wavnum);
         wavnum;
         tolerance = 0.0000001;
         for i=1:numel(dnum)
             t = find(dnum(i)>(time_value-tolerance) & dnum(i)<(time_value+tolerance));
             if t~=0
-                index = i
+                index = i;
             end
         end
         
@@ -110,46 +109,41 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             range_val = ceil(15/((fil(2)-fil(1))/4));
         elseif fil(2)/fil(1)==16
             range_val = 50
-        end
+         end
 
         if strcmp(name, 'KTSZ4')
             if fil(1) == 0.375
-                range_val = range_val+200;
+                range_val = range_val+50;
+            %elseif fil(1) == 0.1875
+             %   range_val = range_val+2;
             end
         end
-        index+range_val
+        index+range_val;
         %index-range_val;
         if strcmp(name, 'KTSZ4')
-            if fil(1) == 0.375
-                if fil(2) == 0.75
-                    data = data(index+50:index+range_val);
-                elseif fil(2) == 1.5
-                    data = data(index-100:index+range_val);
-                end  
+            if fil(1) == 0.375 && fil(2) == 1.5
+                data = data(index-100:index+50);
+            else
+                data = data(index-range_val:index+range_val);
+                numel(data)
             end
-        else
-            data = data(index-range_val:index+range_val);
         end
         
         numel(data);
-        if strcmp(name, 'KTSZ3') || strcmp(name, 'KTSZ4')
+        if strcmp(name, 'KTSZ3')
             [m, I] = nanmax(data);
         else
             [m, I] = nanmin(data);
         end
         
         if strcmp(name, 'KTSZ4')
-            if fil(1) == 0.375
-                if fil(2) == 0.75
-                    time_value = dnum(I+(index+50));
-                elseif fil(2) == 1.5
-                    fime_value = dnum(I+(index-100));
-                end
+            if fil(1) == 0.375 && fil(2) == 1.5
+                time_value = dnum(I+(index-100));
+            else
+                time_value = dnum(I+(index-range_val));
             end
-        else
-            time_value = dnum(I+(index-range_val));
         end
-        
+
 %         time_value1 = dnum(I+(index-range_val)-200);
 %         time_value2 = dnum(I+(index-range_val)+200);
 %         time_value3 = dnum(I+(index-range_val)-100);

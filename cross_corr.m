@@ -94,6 +94,7 @@ if strcmp(eq.name, 'KTSZ3')
     w(12)=[]; %remove station PLLL - instrument noise KTSZ3
 elseif strcmp(eq.name, 'KTSZ4')
     w(1:7)=[]; %remove all LZ stations - KTSZ4
+    w(18)=[]; %remove PLSP - waveforms unlike other stations
 elseif strcmp(eq.name, 'JSZ2')
     w(6)=[]; %remove station PLQU - noise JSZ2
 elseif strcmp(eq.name, 'JSZ3')   
@@ -159,16 +160,23 @@ elseif strcmp(name, 'KTSZ4')
     tshift(1) = tshift(1)-3.500;
     tshift(2) = tshift(2)-3.500;
     tshift(3) = tshift(3)-5.500;
-    tshift(7) = tshift(7)-3.500;
-    tshift(12) = tshift(12)-3.500;
+    %tshift(7) = tshift(7)-3.500;
+    %tshift(7) = tshift(7)+10.000;
+    tshift(11) = tshift(11)-3.500;%
+    %tshift(12) = tshift(12)-3.500;
+    %tshift(12) = tshift(12)+5.500;
+    tshift(16) = tshift(16)-3.500;%
     tshift(17) = tshift(17)-3.500;
+    %tshift(18) = tshift(18)-3.500;
+    %tshift(19) = tshift(19)-3.500;
+    %tshift(21) = tshift(21)-3.500;
     tshift(18) = tshift(18)-3.500;
-    tshift(19) = tshift(19)-3.500;
-    tshift(21) = tshift(21)-3.500;
+    tshift(20) = tshift(20)-3.500;
     for i=1:numel(tshift)
         tshift(i) = tshift(i)+3.500;
     end
 end
+
 %plot(C);
 %figure 5
 plot(C,'lag'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,'station'))

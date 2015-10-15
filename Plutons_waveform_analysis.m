@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.375 1.5];
+fil=[0.375 0.75];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -59,6 +59,7 @@ if earthquake_number == 4
     w_clean(12)=[]; %remove station PLLL - instrument noise KTSZ3
 elseif earthquake_number == 5
     w_clean(1:7)=[]; %remove all LZ stations - KTSZ4
+    w_clean(18)=[]; %remove PLSP - waveform unlike others
 elseif earthquake_number == 7
     w_clean(6)=[]; %remove station PLQU - noise JSZ2
 elseif earthquake_number == 8    
@@ -75,7 +76,7 @@ end
 
 %get information for these waveforms
 stations = [get(w_clean, 'station')];
-stations;
+stations
 
 
 
@@ -181,16 +182,15 @@ if strcmp(eq(earthquake_number).name, 'KTSZ1')
     data = data(1:300);
 elseif strcmp(eq(earthquake_number).name, 'KTSZ3') || strcmp(eq(earthquake_number).name, 'KTSZ4')
     data = data(1:500);
-    if strcmp(eq(earthquake_number).name, 'KTSZ3') || strcmp(eq(earthquake_number).name, 'KTSZ4')
+    if strcmp(eq(earthquake_number).name, 'KTSZ3')
         [ref_amp, ref_index] = nanmax(data)
     else
         [ref_amp, ref_index] = nanmin(data)
     end
     time_value_ref = dnum(ref_index); %reference time of minimum of first station
     start_time_ref = dnum(1); %start time of waveforms
-    diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+    diff_time_ref = time_value_ref - start_time_ref %difference between start time of series and phase time
 elseif strcmp(eq(earthquake_number).name, 'KTSZ2')
-    data = get(w_clean_sort(1), 'data');
     data = data(1:650);
     [ref_amp, ref_index] = nanmin(data);
     time_value_ref = dnum(ref_index) %reference time of minimum of first station
