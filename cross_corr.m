@@ -175,6 +175,13 @@ elseif strcmp(name, 'KTSZ4')
     for i=1:numel(tshift)
         tshift(i) = tshift(i)+3.500;
     end
+elseif strcmp(name, 'JSZ1')
+    tshift(2) = tshift(2)+2.500;
+    tshift(4) = tshift(4)+0.100;
+    tshift(5) = tshift(5)-2.500;
+    tshift(8) = tshift(8)-0.200;
+    tshift(10) = tshift(10)-2.500;
+    tshift(12) = tshift(12)-2.300;
 end
 
 %plot(C);

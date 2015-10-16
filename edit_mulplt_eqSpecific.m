@@ -114,6 +114,8 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         if strcmp(name, 'KTSZ4')
             if fil(1) == 0.375
                 range_val = range_val+50;
+%             elseif fil(1) == 0.1875 && fil(2) == 3.000
+%                 range_val = range_val + 100
             %elseif fil(1) == 0.1875
              %   range_val = range_val+2;
             end
@@ -123,6 +125,8 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         if strcmp(name, 'KTSZ4')
             if fil(1) == 0.375 && fil(2) == 1.5
                 data = data(index-100:index+50);
+            elseif fil(1) == 0.1875 && fil(2) == 3.000
+                data = data(index-20:index+range_val+100);
             else
                 data = data(index-range_val:index+range_val);
                 numel(data)
@@ -139,6 +143,8 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         if strcmp(name, 'KTSZ4')
             if fil(1) == 0.375 && fil(2) == 1.5
                 time_value = dnum(I+(index-100));
+            elseif fil(1) == 0.1875 && fil(2) == 3.000
+                time_value = dnum(I+(index-20));
             else
                 time_value = dnum(I+(index-range_val));
             end
