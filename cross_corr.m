@@ -180,8 +180,17 @@ elseif strcmp(name, 'JSZ1')
     tshift(4) = tshift(4)+0.100;
     tshift(5) = tshift(5)-2.500;
     tshift(8) = tshift(8)-0.200;
-    tshift(10) = tshift(10)-2.500;
-    tshift(12) = tshift(12)-2.300;
+    tshift(12) = tshift(12)+0.100;
+elseif strcmp(name, 'JSZ2')
+    tshift(3) = tshift(3)-1.7;
+    tshift(4) = tshift(4)-1.7;
+elseif strcmp(name, 'JSZ3')
+    tshift(3)=tshift(3)+4;
+    tshift(4)=tshift(4)+2;
+    tshift(7)=tshift(7)-1;
+    tshift(13)=tshift(13)+2;
+    tshift(17)=tshift(17)-2;
+    tshift(18)=tshift(18)-3;
 end
 
 %plot(C);

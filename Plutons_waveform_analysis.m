@@ -5,7 +5,7 @@ clear all
 close all
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 6;
+earthquake_number = 8;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 %ESZ1
@@ -19,9 +19,9 @@ eq(4) = struct('name', 'KTSZ3', 'snum', datenum(2011, 9, 15, 19, 43, 45), 'enum'
 %KTSZ4
 eq(5) = struct('name', 'KTSZ4', 'snum', datenum(2012, 1, 24, 1, 4, 50), 'enum', datenum(2012, 1, 24, 1, 5, 5), 'lat', -24.98, 'lon', 178.52, 'depth', 580, 'mag', 6.3, 'evtime', datenum(2012, 1, 24, 0, 52, 5), 'freq', 1/3.4, 'az', 57);
 %JSZ1
-eq(6) = struct('name', 'JSZ1', 'snum', datenum(2010, 11, 30, 3, 43, 35), 'enum', datenum(2010, 11, 30, 3, 43, 50), 'lat', 28.36, 'lon', 139.15, 'depth', 486, 'mag', 6.8, 'evtime', datenum(2010, 11, 30, 3, 24, 41), 'freq', 1/1.3, 'az', 290);
+eq(6) = struct('name', 'JSZ1', 'snum', datenum(2010, 11, 30, 3, 43, 35), 'enum', datenum(2010, 11, 30, 3, 43, 45), 'lat', 28.36, 'lon', 139.15, 'depth', 486, 'mag', 6.8, 'evtime', datenum(2010, 11, 30, 3, 24, 41), 'freq', 1/1.3, 'az', 290);
 %JSZ2
-eq(7) = struct('name', 'JSZ2', 'snum', datenum(2011, 1, 12, 21, 51, 45), 'enum', datenum(2011, 1, 12, 21, 51, 53), 'lat', 26.98, 'lon', 139.87, 'depth', 527, 'mag', 6.4, 'evtime', datenum(2011, 1, 12, 21, 32, 55), 'freq', 1/1.5, 'az', 286);
+eq(7) = struct('name', 'JSZ2', 'snum', datenum(2011, 1, 12, 21, 51, 45), 'enum', datenum(2011, 1, 12, 21, 51, 55), 'lat', 26.98, 'lon', 139.87, 'depth', 527, 'mag', 6.4, 'evtime', datenum(2011, 1, 12, 21, 32, 55), 'freq', 1/1.5, 'az', 286);
 %JSZ3
 eq(8) = struct('name', 'JSZ3', 'snum', datenum(2011, 5, 10, 15, 44, 50), 'enum', datenum(2011, 5, 10, 15, 45, 0), 'lat', 43.29, 'lon', 130.94, 'depth', 544, 'mag', 5.4, 'evtime', datenum(2011, 5, 10, 15, 26, 5), 'freq', 1/1.3, 'az', 286);
 %JSZ4
@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.375 0.75];
+fil=[0.375 1.5];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -174,6 +174,7 @@ close all;
 days2secs = 60*60*24;
 freq = get(w_clean_sort(1), 'freq');
 data = get(w_clean_sort(1), 'data');
+numel(data)
 dnum(1) = datenum(get(w_clean_sort(1),'start'));
 for l = 2:numel(data)
     dnum(l) = datenum(l/freq/days2secs+dnum(1));
@@ -208,14 +209,20 @@ elseif strcmp(eq(earthquake_number).name, 'KTSZ2')
     start_time_ref = dnum(1) %start time of waveforms
     diff_time_ref = time_value_ref - start_time_ref %difference between start time of series and phase time
 elseif strcmp(eq(earthquake_number).name, 'JSZ1')
+    data = data(1:700);
+    [ref_amp, ref_index] = nanmin(data);
+    time_value_ref = dnum(ref_index); %reference time of minimum of first station
+    start_time_ref = dnum(1); %start time of waveforms
+    diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+elseif strcmp(eq(earthquake_number).name, 'JSZ2')
     data = data(1:600);
-    [ref_amp, ref_index] = nanmax(data);
+    [ref_amp, ref_index] = nanmin(data);
     time_value_ref = dnum(ref_index); %reference time of minimum of first station
     start_time_ref = dnum(1); %start time of waveforms
     diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
 end
 
-
+ref_index
 
 
 tshift_days = [];
@@ -292,7 +299,15 @@ for i = 1:nwaveforms
     Fn = get(w_clean_sort(i),'NYQ'); %from https://code.google.com/p/gismotools/source/browse/trunk/GISMO/contributed/fft_tools/%2Bwf_fft/compute.m?r=321
     stn = get(w_clean_sort(i),'station');
     x = get(w_clean_sort(i),'data');
-    x = x(index_values(i)-200:index_values(i)+200);
+    if strcmp(eq(earthquake_number).name, 'JSZ1')
+        if fil(1)==0.1875 && fil(2)==0.75
+            if strcmp(stn, 'PLAR')
+                x = x(index_values(i)-200:index_values(i)+197);
+            end
+        end
+    else
+        x = x(index_values(i)-200:index_values(i)+200);
+    end
     NFFT=2.^(ceil(log(length(x))/log(2)));  % Next highest power of 2
     FFTX=fft(x,NFFT);                       % Take fft, padding with zeros.
     NumUniquePts = ceil((NFFT+1)/2);

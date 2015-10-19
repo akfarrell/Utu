@@ -109,7 +109,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             range_val = ceil(15/((fil(2)-fil(1))/4));
         elseif fil(2)/fil(1)==16
             range_val = 50
-         end
+        end
 
         if strcmp(name, 'KTSZ4')
             if fil(1) == 0.375
@@ -132,6 +132,11 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
                 numel(data)
             end
         end
+        index
+        range_val
+        if strcmp(name, 'JSZ1') || strcmp(name, 'JSZ2')
+            data = data(index-range_val:index+range_val);
+        end
         
         numel(data);
         if strcmp(name, 'KTSZ3')
@@ -148,8 +153,10 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             else
                 time_value = dnum(I+(index-range_val));
             end
+        else
+            time_value = dnum(I+(index-range_val));
         end
-
+time_value
 %         time_value1 = dnum(I+(index-range_val)-200);
 %         time_value2 = dnum(I+(index-range_val)+200);
 %         time_value3 = dnum(I+(index-range_val)-100);
