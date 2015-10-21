@@ -5,7 +5,7 @@ clear all
 close all
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 8;
+earthquake_number = 9;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 %ESZ1
@@ -23,9 +23,9 @@ eq(6) = struct('name', 'JSZ1', 'snum', datenum(2010, 11, 30, 3, 43, 35), 'enum',
 %JSZ2
 eq(7) = struct('name', 'JSZ2', 'snum', datenum(2011, 1, 12, 21, 51, 45), 'enum', datenum(2011, 1, 12, 21, 51, 55), 'lat', 26.98, 'lon', 139.87, 'depth', 527, 'mag', 6.4, 'evtime', datenum(2011, 1, 12, 21, 32, 55), 'freq', 1/1.5, 'az', 286);
 %JSZ3
-eq(8) = struct('name', 'JSZ3', 'snum', datenum(2011, 5, 10, 15, 44, 50), 'enum', datenum(2011, 5, 10, 15, 45, 0), 'lat', 43.29, 'lon', 130.94, 'depth', 544, 'mag', 5.4, 'evtime', datenum(2011, 5, 10, 15, 26, 5), 'freq', 1/1.3, 'az', 286);
+eq(8) = struct('name', 'JSZ3', 'snum', datenum(2011, 5, 10, 15, 44, 52), 'enum', datenum(2011, 5, 10, 15, 45, 2), 'lat', 43.29, 'lon', 130.94, 'depth', 544, 'mag', 5.4, 'evtime', datenum(2011, 5, 10, 15, 26, 5), 'freq', 1/1.3, 'az', 286);
 %JSZ4
-eq(9) = struct('name', 'JSZ4', 'snum', datenum(2011, 10, 4, 1, 56, 20), 'enum', datenum(2011, 10, 4, 1, 56, 40), 'lat', 26.77, 'lon', 140.43, 'depth', 455, 'mag', 5.6, 'evtime', datenum(2011, 10, 4, 1, 37, 29), 'freq', 1/1.3, 'az', 286);
+eq(9) = struct('name', 'JSZ4', 'snum', datenum(2011, 10, 4, 1, 56, 25), 'enum', datenum(2011, 10, 4, 1, 56, 40), 'lat', 26.77, 'lon', 140.43, 'depth', 455, 'mag', 5.6, 'evtime', datenum(2011, 10, 4, 1, 37, 29), 'freq', 1/1.3, 'az', 286);
 %SSSZ1
 eq(10) = struct('name', 'SSSZ1', 'snum', datenum(2011, 1, 20, 3, 52, 35), 'enum', datenum(2011, 1, 20, 3, 52, 55), 'lat', -59.94, 'lon', -27.48, 'depth', 129, 'mag', 5.2, 'evtime', datenum(2011, 1, 20, 3, 44, 26), 'freq', 1/1.15, 'az', 154);
 %SSSZ2
@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.375 1.5];
+fil=[0.75 1.5];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -208,7 +208,7 @@ elseif strcmp(eq(earthquake_number).name, 'KTSZ2')
     time_value_ref = dnum(ref_index) %reference time of minimum of first station
     start_time_ref = dnum(1) %start time of waveforms
     diff_time_ref = time_value_ref - start_time_ref %difference between start time of series and phase time
-elseif strcmp(eq(earthquake_number).name, 'JSZ1')
+elseif strcmp(eq(earthquake_number).name, 'JSZ1') || strcmp(eq(earthquake_number).name, 'JSZ3')
     data = data(1:700);
     [ref_amp, ref_index] = nanmin(data);
     time_value_ref = dnum(ref_index); %reference time of minimum of first station

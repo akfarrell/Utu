@@ -185,12 +185,21 @@ elseif strcmp(name, 'JSZ2')
     tshift(3) = tshift(3)-1.7;
     tshift(4) = tshift(4)-1.7;
 elseif strcmp(name, 'JSZ3')
-    tshift(3)=tshift(3)+4;
-    tshift(4)=tshift(4)+2;
+    tshift(2)=tshift(2)-2.1;
+    tshift(3)=tshift(3)-4.3;
+    tshift(4)=tshift(4)+2.1;
+    tshift(5)=tshift(5)+5.8;
     tshift(7)=tshift(7)-1;
-    tshift(13)=tshift(13)+2;
-    tshift(17)=tshift(17)-2;
-    tshift(18)=tshift(18)-3;
+    tshift(8)=tshift(8)-4.6;
+    tshift(10)=tshift(10)+0.05;
+    tshift(13)=tshift(13)+5.5;
+    tshift(17)=tshift(17)+5.5;
+    tshift(19)=tshift(19)+5.5;
+    tshift(20)=tshift(20)+6;
+    tshift(22)=tshift(22)-1.5;
+elseif strcmp(name, 'JSZ4')
+    tshift(5)=tshift(5)+5.8; %do
+    tshift(7)=tshift(7)-1; %do
 end
 
 %plot(C);

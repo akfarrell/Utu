@@ -132,11 +132,20 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
                 numel(data)
             end
         end
+        if strcmp(name, 'JSZ3') && fil(1) == 0.1875 && fil(2) == 0.7500 && (wavnum == 18 || wavnum == 22) %exception for this filter PLLL & PLWB
+            range_val = range_val-50;
+        end
         index
         range_val
-        if strcmp(name, 'JSZ1') || strcmp(name, 'JSZ2')
-            data = data(index-range_val:index+range_val);
+        if strcmp(name, 'JSZ1') || strcmp(name, 'JSZ2') || strcmp(name, 'JSZ3')
+            if strcmp(name, 'JSZ3') && fil(1) == 0.75 && fil(2) == 1.5000 && (wavnum == 10 || wavnum == 15)
+                data = data(index-range_val:index+range_val+30);
+            else
+                data = data(index-range_val:index+range_val);
+            end
         end
+        
+        
         
         numel(data);
         if strcmp(name, 'KTSZ3')
@@ -153,6 +162,8 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             else
                 time_value = dnum(I+(index-range_val));
             end
+
+            
         else
             time_value = dnum(I+(index-range_val));
         end
