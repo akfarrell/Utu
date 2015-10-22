@@ -134,10 +134,12 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         end
         if strcmp(name, 'JSZ3') && fil(1) == 0.1875 && fil(2) == 0.7500 && (wavnum == 18 || wavnum == 22) %exception for this filter PLLL & PLWB
             range_val = range_val-50;
+        elseif strcmp(name, 'SSSZ1') && fil(1) == 0.1875 && fil(2) == 3.000
+            range_val = 10;
         end
         index
         range_val
-        if strcmp(name, 'JSZ1') || strcmp(name, 'JSZ2') || strcmp(name, 'JSZ3')
+        if strcmp(name, 'JSZ1') || strcmp(name, 'JSZ2') || strcmp(name, 'JSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ1')
             if strcmp(name, 'JSZ3') && fil(1) == 0.75 && fil(2) == 1.5000 && (wavnum == 10 || wavnum == 15)
                 data = data(index-range_val:index+range_val+30);
             else
@@ -148,7 +150,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         
         
         numel(data);
-        if strcmp(name, 'KTSZ3')
+        if strcmp(name, 'KTSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ1')
             [m, I] = nanmax(data);
         else
             [m, I] = nanmin(data);
@@ -162,12 +164,12 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             else
                 time_value = dnum(I+(index-range_val));
             end
-
-            
+ 
         else
             time_value = dnum(I+(index-range_val));
         end
 time_value
+%         derp = dnum(index);  
 %         time_value1 = dnum(I+(index-range_val)-200);
 %         time_value2 = dnum(I+(index-range_val)+200);
 %         time_value3 = dnum(I+(index-range_val)-100);
@@ -182,7 +184,7 @@ time_value
         line([get(w(wavnum), 'EX_ARR_TIME'), get(w(wavnum), 'EX_ARR_TIME')], [yl(1), yl(2)], 'Color', 'k');
         hold on
         line([time_value, time_value], [yl(1), yl(2)], 'Color', 'k', 'LineStyle', ':', 'LineWidth', 2);
-%         line([time_value1, time_value1], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
+%         line([derp, derp], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value2, time_value2], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value3, time_value3], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value4, time_value4], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);

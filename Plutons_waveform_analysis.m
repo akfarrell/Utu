@@ -5,7 +5,7 @@ clear all
 close all
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 9;
+earthquake_number = 11;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 %ESZ1
@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.75 1.5];
+fil=[0.75 3];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -220,6 +220,36 @@ elseif strcmp(eq(earthquake_number).name, 'JSZ2')
     time_value_ref = dnum(ref_index); %reference time of minimum of first station
     start_time_ref = dnum(1); %start time of waveforms
     diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+elseif strcmp(eq(earthquake_number).name, 'JSZ4')
+    if fil(1) == 0.1875 && fil(2) == 3.000
+        nums = ceil(numel(data));
+        data = data((nums/3):600);
+        [ref_amp, ref_index] = nanmax(data);
+        ref_index = ref_index+(nums/3);
+        time_value_ref = dnum(ref_index); %reference time of minimum of first station
+        start_time_ref = dnum(1); %start time of waveforms
+        diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+    else
+        data = data(1:600);
+        [ref_amp, ref_index] = nanmax(data);
+        time_value_ref = dnum(ref_index); %reference time of minimum of first station
+        start_time_ref = dnum(1); %start time of waveforms
+        diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+    end
+elseif strcmp(eq(earthquake_number).name, 'SSSZ1')
+    if (fil(1)==0.7500 && fil(2)==1.500) || (fil(1)==0.75 && fil(2) == 3.000)
+        data = data(1:900);
+        [ref_amp, ref_index] = nanmax(data);
+        time_value_ref = dnum(ref_index); %reference time of minimum of first station
+        start_time_ref = dnum(1); %start time of waveforms
+        diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+    else
+        data = data(1:1000);
+        [ref_amp, ref_index] = nanmax(data);
+        time_value_ref = dnum(ref_index); %reference time of minimum of first station
+        start_time_ref = dnum(1); %start time of waveforms
+        diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+    end
 end
 
 ref_index
