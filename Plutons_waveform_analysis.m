@@ -5,7 +5,7 @@ clear all
 close all
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 11;
+earthquake_number = 12;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 %ESZ1
@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.75 3];
+fil=[0.375 1.5];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -185,7 +185,7 @@ if strcmp(eq(earthquake_number).name, 'KTSZ1')
     time_value_ref = dnum(ref_index); %reference time of minimum of first station
     start_time_ref = dnum(1); %start time of waveforms
     diff_time_ref = time_value_ref - start_time_ref %difference between start time of series and phase time
-elseif strcmp(eq(earthquake_number).name, 'KTSZ3') || strcmp(eq(earthquake_number).name, 'KTSZ4')
+elseif strcmp(eq(earthquake_number).name, 'KTSZ3') || strcmp(eq(earthquake_number).name, 'KTSZ4') || strcmp(eq(earthquake_number).name, 'SSSZ2')
     if strcmp(eq(earthquake_number).name, 'KTSZ4') && fil(1) == 0.1875 && fil(2) == 3.000 
         data = data(300:500);
     else

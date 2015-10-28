@@ -108,7 +108,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         elseif fil(2)/fil(1)==4
             range_val = ceil(15/((fil(2)-fil(1))/4));
         elseif fil(2)/fil(1)==16
-            range_val = 50
+            range_val = 50;
         end
 
         if strcmp(name, 'KTSZ4')
@@ -139,9 +139,19 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         end
         index
         range_val
-        if strcmp(name, 'JSZ1') || strcmp(name, 'JSZ2') || strcmp(name, 'JSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ1')
+        if strcmp(name, 'JSZ1') || strcmp(name, 'JSZ2') || strcmp(name, 'JSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ1') || strcmp(name, 'SSSZ2')
             if strcmp(name, 'JSZ3') && fil(1) == 0.75 && fil(2) == 1.5000 && (wavnum == 10 || wavnum == 15)
                 data = data(index-range_val:index+range_val+30);
+            elseif strcmp(name, 'SSSZ2') && fil(1) == 0.1875 && fil(2) == 3.000 %&& (wavnum == 10 || wavnum == 15)
+                range_val = range_val+15;
+                if wavnum == 1
+                    data = data(index+20:index+range_val+50);
+                else
+                    data = data(index-range_val:index+range_val);
+                end
+                
+            elseif strcmp(name, 'SSSZ2') && fil(1)==0.3750 && fil(2)==0.7500 && wavnum == 8
+                data = data(index-range_val:index);
             else
                 data = data(index-range_val:index+range_val);
             end
@@ -164,8 +174,10 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             else
                 time_value = dnum(I+(index-range_val));
             end
- 
+        elseif strcmp(name, 'SSSZ2') && fil(1) == 0.1875 && fil(2) == 3.000 && wavnum==1
+            time_value = dnum(I+(index+20));
         else
+            wavnum
             time_value = dnum(I+(index-range_val));
         end
 time_value

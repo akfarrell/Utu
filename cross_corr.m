@@ -149,7 +149,7 @@ get(wfilt,'station')
 C = correlation(wfilt);
 C = xcorr(C);
 lagtimes = get(C,'lag');
-tshift = -lagtimes(1,:)
+tshift = -lagtimes(1,:);
 if strcmp(name, 'KTSZ1')
     tshift(3) = tshift(3)+1.3000;
     tshift(4) = tshift(4)+1.1500;
@@ -203,10 +203,19 @@ elseif strcmp(name, 'JSZ4')
     tshift(10)=tshift(10)-4.3;
     tshift(12)=tshift(12)-1.2;
 elseif strcmp(name, 'SSSZ1')
-    tshift(2)=tshift(2)-0.4
+    tshift(2)=tshift(2)-0.4;
     tshift(3)=tshift(3)+2.1;
     tshift(7)=tshift(7)+4.0;
     tshift(10)=tshift(10)+4.1;
+elseif strcmp(name, 'SSSZ2')
+    tshift(3)=tshift(3)+4;
+    tshift(5)=tshift(5)-3.5;
+    tshift(6)=tshift(6)+4;
+    tshift(7)=tshift(7)+2;
+    tshift(8)=tshift(8)+5;
+    tshift(9)=tshift(9)+4;
+    tshift(10)=tshift(10)+6;
+    tshift(11)=tshift(11)+1.5;
 end
 
 %plot(C);
