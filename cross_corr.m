@@ -148,6 +148,7 @@ plotw_rs(wfilt,0,iabs,[],tmark,[],[],pmax,iintp,inorm,tlims,2,azcen,iunit,imap);
 get(wfilt,'station')
 C = correlation(wfilt);
 C = xcorr(C);
+C
 lagtimes = get(C,'lag');
 tshift = -lagtimes(1,:);
 if strcmp(name, 'KTSZ1')
@@ -216,8 +217,40 @@ elseif strcmp(name, 'SSSZ2')
     tshift(9)=tshift(9)+4;
     tshift(10)=tshift(10)+6;
     tshift(11)=tshift(11)+1.5;
+elseif strcmp(name, 'SSSZ3')
+    tshift(2)=tshift(2)-0.28;
+    tshift(3)=tshift(3)+1.5-0.26;
+    tshift(4)=tshift(4)+0.5-0.28;
+    tshift(5)=tshift(5)-3.7-0.38;
+    tshift(6)=tshift(6)+6-0.26;
+    tshift(7)=tshift(7)+2-0.75;
+    tshift(9)=tshift(9)-4+0.26;
+    tshift(11)=tshift(11)-0.28;
+    tshift(12)=tshift(12)-4+0.2;
+    tshift(13)=tshift(13)-0.3;
+    tshift(14)=tshift(14)+1-0.28;
+    tshift(15)=tshift(15)+2-0.3;
+    tshift(17)=tshift(17)+1.5;
+    tshift(18)=tshift(18)-1+1.1;
+    tshift(19)=tshift(19)-0.28;
+    tshift(20)=tshift(20)+2-0.28;
+    tshift(21)=tshift(21)-0.1;
+    tshift(22)=tshift(22)-0.15;
+    tshift(23)=tshift(23)-0.1;
+    tshift(24)=tshift(24)-1;
 end
-
+% trig = get(C, 'trig');
+% trig_offset=[];
+% trig
+% tshift_days = tshift/60/60/24;
+% tshift_days
+% for i = 1:numel(trig)
+%     trig_offset(i)=trig(i)-tshift_days(i);
+% end
+% C2=correlation(wfilt,trig);
+% get(C, 'corr')
+% get(C2, 'corr')
+%w_clean(i) = addfield(w_clean(i), 'EX_ARR_TIME', (eq(earthquake_number).evtime + times(1)/SECS2DAY));
 %plot(C);
 %figure 5
 plot(C,'lag'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,'station'))

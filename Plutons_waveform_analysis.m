@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.375 1.5];
+fil=[0.1875 0.75];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -245,6 +245,20 @@ elseif strcmp(eq(earthquake_number).name, 'SSSZ1')
         diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
     else
         data = data(1:1000);
+        [ref_amp, ref_index] = nanmax(data);
+        time_value_ref = dnum(ref_index); %reference time of minimum of first station
+        start_time_ref = dnum(1); %start time of waveforms
+        diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+    end
+elseif strcmp(eq(earthquake_number).name, 'SSSZ3')
+    if fil(1)== 0.1875 && fil(2)==0.75
+        data = data(100:400);
+        [ref_amp, ref_index] = nanmax(data);
+        time_value_ref = dnum(ref_index+100); %reference time of minimum of first station
+        start_time_ref = dnum(1); %start time of waveforms
+        diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+    else
+        data = data(1:400);
         [ref_amp, ref_index] = nanmax(data);
         time_value_ref = dnum(ref_index); %reference time of minimum of first station
         start_time_ref = dnum(1); %start time of waveforms
