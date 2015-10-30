@@ -50,7 +50,7 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 % end
 
 w_clean = waveform_clean(w_raw);
-fil=[0.1875 0.75];
+fil=[0.375 1.5];
 tshift = cross_corr(eq(earthquake_number), fil);
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
@@ -294,6 +294,7 @@ for values = 1:numel(time_values)
     time_vals_ref(values) = timelag;
 end
 slowness = tlag-time_vals_ref;
+%time_values(17)-time_values(18)
 
 %%
 % w_clean_tp = taper(w_clean_sort_trial, 0.2);

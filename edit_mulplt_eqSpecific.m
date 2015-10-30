@@ -155,7 +155,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             elseif strcmp(name, 'SSSZ3') && (fil(1)==0.7500 && fil(2)==1.500) && wavnum~=24
                 range_val = range_val + 10;
                 data=data(index-range_val:index+range_val);
-            elseif strcmp(name, 'SSSZ3') && ((fil(1) == 0.375 && fil(2) == 1.500) || (fil(1) == 0.1875 && fil(2) == 3.000) || (fil(1)==0.7500 && fil(2)==1.500) || (fil(1)==0.1875 && fil(2)==0.7500) || (fil(1)==0.7500 && fil(2)==3.000)) && (wavnum==24 ||(fil(1)==0.1875 && fil(2)==0.75 && wavnum==2))
+            elseif strcmp(name, 'SSSZ3') && ((fil(1) == 0.375 && fil(2) == 1.500) || (fil(1) == 0.1875 && fil(2) == 3.000) || (fil(1)==0.7500 && fil(2)==1.500) || (fil(1)==0.1875 && fil(2)==0.7500) || (fil(1)==0.375 && fil(2)==0.7500) || (fil(1)==0.7500 && fil(2)==3.000)) && (wavnum==24 ||(fil(1)==0.1875 && fil(2)==0.75 && wavnum==2))
                 range_val = 90;
                 if fil(1)==0.1875 && fil(2)==0.75 && wavnum==2
                     data = data(index+10:index+range_val);
@@ -171,6 +171,12 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
                 data = data(index-range_val: index);
             elseif strcmp(name, 'SSSZ2') && fil(1)==0.3750 && fil(2)==0.7500 && wavnum == 8
                 data = data(index-range_val:index);
+            elseif strcmp(name, 'SSSZ3') && ((fil(1)==0.3750 && fil(2)==0.7500 && wavnum == 14) || ((fil(1)==0.3750 && fil(2)==1.500) && (wavnum == 14 || wavnum == 5)))
+                if fil(1)==0.375 && fil(2)==1.500 && wavnum == 5
+                    data = data(index:index+90);
+                else
+                    data = data(index-range_val:index+90);
+                end
             else
                 data = data(index-range_val:index+range_val);
             end
@@ -194,12 +200,15 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             end
         elseif strcmp(name, 'SSSZ2') && fil(1) == 0.1875 && fil(2) == 3.000 && wavnum==1
             time_value = dnum(I+(index+20));
-        elseif strcmp(name, 'SSSZ3') && ((fil(1) == 0.375 && fil(2) == 1.500) || (fil(1) == 0.1875 && fil(2) == 3.000) || (fil(1)==0.7500 && fil(2)==1.500) || (fil(1)==0.1875 && fil(2)==0.7500) || (fil(1)==0.7500 && fil(2)==3.000)) && (wavnum==24 ||(fil(1)==0.1875 && fil(2)==0.75 && wavnum==2))
+        elseif strcmp(name, 'SSSZ3') && ((fil(1) == 0.375 && fil(2) == 1.500) || (fil(1) == 0.1875 && fil(2) == 3.000) || (fil(1)==0.7500 && fil(2)==1.500) || (fil(1)==0.375 && fil(2)==0.7500) || (fil(1)==0.1875 && fil(2)==0.7500) || (fil(1)==0.7500 && fil(2)==3.000)) && (wavnum==24 ||(fil(1)==0.1875 && fil(2)==0.75 && wavnum==2))
             if fil(1)==0.1875 && fil(2)==0.75 && wavnum==2
                 time_value = dnum(I+(index+10));
             else
                 time_value = dnum(I+(index+50));
             end
+            
+        elseif strcmp(name, 'SSSZ3') && fil(1)==0.375 && fil(2)==1.5 && wavnum==5
+            time_value = dnum(I+(index));
         else
             wavnum
             time_value = dnum(I+(index-range_val));
