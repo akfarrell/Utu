@@ -238,6 +238,13 @@ elseif strcmp(name, 'SSSZ3')
     tshift(22)=tshift(22)-0.15;
     tshift(23)=tshift(23)-0.1;
     tshift(24)=tshift(24)-1;
+elseif strcmp(name, 'SSSZ4')
+    tshift(2)=tshift(2)+1;
+    tshift(5)=tshift(5)-3;
+    tshift(7)=tshift(7)+1;
+    tshift(9)=tshift(9)-3;
+    tshift(11)=tshift(11)-3;
+    tshift(13)=tshift(13)+1;
 end
 % trig = get(C, 'trig');
 % trig_offset=[];
