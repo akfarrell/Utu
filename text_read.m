@@ -38,9 +38,9 @@ for t = 1:length(directories)
         corrFileName = strrep(fileName, '.txt','');
         corrFileName = strrep(corrFileName, '.','pt');
         fid = fopen(files(i).name);
-        C = textscan(fid, '%s %10.5f %10.3f');
+        C = textscan(fid, '%s %10.5f %10.3f %10.4f');
         fclose(fid);
-        f = {'Station','Q','Freq'};
+        f = {'Station','Q','Freq', 'Time_offset'};
         struct.(dirName).(corrFileName) = cell2struct(C,f,2);
     end
     cd ../..

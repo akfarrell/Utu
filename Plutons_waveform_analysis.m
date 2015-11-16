@@ -3,10 +3,16 @@
 clc
 clear all
 close all
+startup_seismiclab
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
-addpath('./data_func_matTaup/')
+addpath('data_func_matTaup/')
+NEWGISMODIR=fullfile('/raid/apps/matlab/toolbox/GISMO/startup_GISMO.m');
+rmpath(genpath(NEWGISMODIR))
+addpath('/raid/apps/src/gismotools/GISMO')
+startup_GISMO
+
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 13;
+earthquake_number = 9;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 %ESZ1
@@ -93,8 +99,9 @@ end
 absMax = max(max_vals);
 absMin = min(min_vals);
 
-
+%%
 siteStruct = loadSiteTable('/raid/data/antelope/databases/PLUTONS/dbmerged');
+minEl = min(siteStruct.elev);
 siteSta = siteStruct.sta;
 staStruct = struct();
 SECS2DAY = 60 * 60 * 24;
@@ -110,10 +117,11 @@ for i=1:len
             [times, phasenames] = arrtimes(staStruct(i).dist, eq(earthquake_number).depth);
             %staStruct(i).timeDiff = times[];
             staStruct(i);
+            w_clean(i) = addfield(w_clean(i), 'ELEV', staStruct(i).elev);
             w_clean(i) = addfield(w_clean(i), 'LAT', staStruct(i).lat);
             w_clean(i) = addfield(w_clean(i), 'LON', staStruct(i).lon);
             w_clean(i) = addfield(w_clean(i), 'DISTANCE', distance(eq(earthquake_number).lat, eq(earthquake_number).lon, siteStruct.lat(k), siteStruct.lon(k)) );
-            w_clean(i) = addfield(w_clean(i), 'EX_ARR_TIME', (eq(earthquake_number).evtime + times(1)/SECS2DAY)+((staStruct(i).elev/cosd(eq(earthquake_number).aoi))*4.1)); %adding in the travel time from sea level to the station elevation using AOI
+            w_clean(i) = addfield(w_clean(i), 'EX_ARR_TIME', (eq(earthquake_number).evtime + times(1)/SECS2DAY)+((((staStruct(i).elev-minEl)/cosd(eq(earthquake_number).aoi)))*(4.1/SECS2DAY))); %adding in the travel time from sea level to the station elevation using AOI
         end
     end
 end
@@ -397,6 +405,20 @@ st = fclose('all');
 %%
 close all
 visualization(w_clean_sort, Q,eq(earthquake_number).name, fil, eq(earthquake_number).az, earthquake_number, slowness);
+
+%%
+lat = get(w_clean_sort, 'LAT');
+lon = get(w_clean_sort, 'LON');
+elev = get(w_clean_sort, 'ELEV');
+
+for j = 1:numel(sta)
+    [sta_dist(j), az(j)] = distance(lat(1), lon(1), lat(j), lon(j));
+    wave_to_sta_dist = (abs(A*(lat(j))+B*(lon(j))+C)/sqrt(A^2 + B^2));
+end
+distOut = distdim(sta_dist, 'degrees', 'km');
+partial_melt(m_values, time_vals_ref, distOut, eq(earthquake_number).aoi, elev)
+
+
 
 %%
 % w_clean_tp = taper(w_clean, 0.2);
