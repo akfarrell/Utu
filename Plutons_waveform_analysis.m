@@ -6,6 +6,7 @@ close all
 startup_seismiclab
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
 addpath('data_func_matTaup/')
+addpath('readhgt/')
 NEWGISMODIR=fullfile('/raid/apps/matlab/toolbox/GISMO/startup_GISMO.m');
 rmpath(genpath(NEWGISMODIR))
 addpath('/raid/apps/src/gismotools/GISMO')
@@ -14,6 +15,9 @@ startup_GISMO
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
 earthquake_number = 9;
 scnl = scnlobject('*', 'HHZ', 'PL');
+
+utu_lat = -22.27;
+utu_lon = -67.18;
 
 %ESZ1
 eq(1) = struct('name', 'ESZ1', 'snum', datenum(2011, 5, 19, 15, 02, 02), 'enum', datenum(2011, 5, 19, 15, 02, 31), 'lat', 39.21, 'lon', 14.96, 'depth', 292, 'mag', 4.7, 'evtime', datenum(2011, 5, 19, 14, 50, 54), 'freq', 1/0.9, 'az', 231, 'aoi', 13);
@@ -293,15 +297,14 @@ if numel(tshift_time_days) == numel(w_clean_sort)
     [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w_clean_sort, 0, absMax, absMin, eq(earthquake_number).name, fil, tshift_time_days);
 end
 %time_values in dnum
-
+%%
 
 time_vals_ref = [];
+if earthquake_number == 9
+    ref_time = time_values(12);
+end
 for values = 1:numel(time_values)
-    if values == 1
-        timelag = 0;
-    else
-        timelag = (time_values(values)-time_values(1))*SECS2DAY;
-    end
+    timelag = (time_values(values)-ref_time)*SECS2DAY;
     time_vals_ref(values) = timelag;
 end
 slowness = tlag-time_vals_ref;
@@ -407,18 +410,111 @@ close all
 visualization(w_clean_sort, Q,eq(earthquake_number).name, fil, eq(earthquake_number).az, earthquake_number, slowness);
 
 %%
+close all
+
+topo_data = readhgt(-23:-22,-68:-67, 'merge','interp');
 lat = get(w_clean_sort, 'LAT');
 lon = get(w_clean_sort, 'LON');
 elev = get(w_clean_sort, 'ELEV');
 
-for j = 1:numel(sta)
-    [sta_dist(j), az(j)] = distance(lat(1), lon(1), lat(j), lon(j));
-    wave_to_sta_dist = (abs(A*(lat(j))+B*(lon(j))+C)/sqrt(A^2 + B^2));
+[dist, az_volc_eq] = distance(utu_lat, utu_lon, eq(earthquake_number).lat, eq(earthquake_number).lon);
+[dist2, az_eq_volc] = distance(eq(earthquake_number).lat, eq(earthquake_number).lon, utu_lat, utu_lon);
+
+% ----Calc line of intersection of planar wave with surface at closest station
+if earthquake_number == 9
+    lat_ref = lat(12);
+    lon_ref = lon(12);
 end
-distOut = distdim(sta_dist, 'degrees', 'km');
-partial_melt(m_values, time_vals_ref, distOut, eq(earthquake_number).aoi, elev)
+
+x1 = lat_ref; y1 = lon_ref;
+m = tand(360-az_volc_eq);
+C = -m*x1+y1;
+A = m;
+B = -1;
 
 
+for j = 1:numel(sta)
+    [sta_dist(j), az(j)] = distance(lat_ref, lon_ref, lat(j), lon(j));
+    wave_to_sta_dist(j) = (abs(A*(lat(j))+B*(lon(j))+C)/sqrt(A^2 + B^2));
+    y_vals = sind(az_volc_eq)*wave_to_sta_dist(j);
+    x_vals = cosd(az_volc_eq)*wave_to_sta_dist(j);
+    LAT_point_on_line(j) = lat(j)-y_vals;
+    LON_point_on_line(j) = lon(j)-x_vals;
+end
+%distOut = distdim(sta_dist, 'degrees', 'km');
+%wave_to_sta_dist_OUT = distdim(wave_to_sta_dist, 'degrees', 'km');
+%partial_melt(m_values, time_vals_ref, distOut, eq(earthquake_number).aoi, elev)
+
+x = linspace(-22.75, -21.75, 100);
+for i = 1:numel(x)
+    y(i) = A*x(i)+C;
+end
+
+h = figure;
+latlim = [-22.75 -21.75]; %[southern_limit northern_limit] 
+lonlim = [-67.75 -66.5]; %[western_limit eastern_limit]
+set(h, 'Position', [1000 1000 1000 1000])
+worldmap(latlim, lonlim);
+borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
+arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
+geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+hold on
+invQ = [];
+maxval = max(Q);
+min2 = sort(Q(:));
+minval = min2(2);
+total = maxval+minval;
+plotm(x, y, 'k')
+hold on
+scatterm(lat, lon, '^', 'k')
+%textm(LAT_point_on_line, LON_point_on_line, sta)
+scatterm(LAT_point_on_line, LON_point_on_line, 'o', 'k', 'filled')
+scatterm(lat_ref, lon_ref, '^', 'k', 'filled')
+textm(lat, lon, sta)
+lat_az = -21.80;
+lon_az = -67.70;
+hypotenuse = 0.07;
+u = hypotenuse*sind(eq(earthquake_number).az); %vertical
+v = hypotenuse*cosd(eq(earthquake_number).az); %horizontal
+quiverm(lat_az, lon_az,u, v, 'k')
+directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
+filename = sprintf('%s_wavefront_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename_wPath = fullfile(directory,filename);
+hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+
+%%
+tolerance = 0.0005;
+for index = 1:numel(sta)
+    for index2 = 1:numel(topo_data.lat)
+        Lat_for_z = find(topo_data.lat(index2)>(LAT_point_on_line(index)-tolerance) & topo_data.lat(index2)<(LAT_point_on_line(index)+tolerance));
+        Lon_for_z = find(topo_data.lon(index2)>(LON_point_on_line(index)-tolerance) & topo_data.lon(index2)<(LON_point_on_line(index)+tolerance));
+        if Lat_for_z~=0
+            Lat_index_for_z(index) = index2;
+        end
+        if Lon_for_z~=0
+            Lon_index_for_z(index) = index2;
+        end
+    end
+end
+%%
+g = figure;
+set(g, 'Position', [1000 1000 1000 1000])
+ind_var = linspace(0,max(wave_to_sta_dist),10);
+zeroes = linspace(0,0,10);
+for p = 1:numel(ind_var)
+    dep_var(p) = ind_var(p);
+end
+plot(ind_var, dep_var, 'k')
+hold on
+plot(ind_var, zeroes, 'k-.')
+scatter(wave_to_sta_dist, time_vals_ref, 'o', 'k');
+text(wave_to_sta_dist+0.01, time_vals_ref, sta);
+xlabel('Distance (deg)')
+ylabel('Time Values with Reference to Closest Station (s)')
+filename = sprintf('%s_timeVsDist_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename_wPath = fullfile(directory,filename);
+hgexport(g, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
 %%
 % w_clean_tp = taper(w_clean, 0.2);
