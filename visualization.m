@@ -62,15 +62,15 @@ total = maxval+minval;
         lat_az = -22.70;
         lon_az = -67.70;
     elseif eq_number > 5 && eq_number < 10 %JSZ
-        lat_az = -21.80;
-        lon_az = -67.70;
+        lat_az = -21.85;
+        lon_az = -67.60;
     else %SSSZ
         lat_az = -22.70;
         lon_az = -66.55;
     end
     hypotenuse = 0.07;
-    u = hypotenuse*sind(az); %vertical
-    v = hypotenuse*cosd(az); %horizontal
+    u = hypotenuse*sind(360-az-90); %vertical
+    v = hypotenuse*cosd(360-az-90); %horizontal
     quiverm(lat_az, lon_az,u, v, 'k')
     title(sprintf('%s',name))
 hold off

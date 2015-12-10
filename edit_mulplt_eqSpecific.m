@@ -212,25 +212,27 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         else
             wavnum
             time_value = dnum(I+(index-range_val));
+            I_fullData = I+(index-range_val)-1;
         end
 time_value
 %         derp = dnum(index);  
 %         time_value1 = dnum(I+(index-range_val)-200);
 %         time_value2 = dnum(I+(index-range_val)+200);
 %         time_value3 = dnum(I+(index-range_val)-100);
-%         time_value4 = dnum(I+(index-range_val)+100);
+%         time_value4 = dnum(I+(index-range_val)+60);
 %         time_value5 = dnum(I+(index-range_val)-150);
 %         time_value6 = dnum(I+(index-range_val)+150);
-        index_values(wavnum) = index+I;
+        %index_values(wavnum) = index+I;
+        index_values(wavnum) = I_fullData;
         time_values(wavnum) = time_value;
         m_values(wavnum) = m;
         hold on
         yl=ylim;
-        line([get(w(wavnum), 'EX_ARR_TIME'), get(w(wavnum), 'EX_ARR_TIME')], [yl(1), yl(2)], 'Color', 'k');
-        hold on
-        line([time_value, time_value], [yl(1), yl(2)], 'Color', 'k', 'LineStyle', ':', 'LineWidth', 2);
+        %line([get(w(wavnum), 'EX_ARR_TIME'), get(w(wavnum), 'EX_ARR_TIME')], [yl(1), yl(2)], 'Color', 'k');
+        %hold on
+        line([time_value, time_value], [yl(1), yl(2)], 'Color', 'k', 'LineWidth', 2);
 %         line([derp, derp], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
-%         line([time_value2, time_value2], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
+%         line([time_value1, time_value1], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value3, time_value3], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value4, time_value4], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value5, time_value5], [yl(1), yl(2)], 'Color', 'g', 'LineStyle', ':', 'LineWidth', 4);

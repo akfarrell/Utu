@@ -408,10 +408,6 @@ st = fclose('all');
 
 %%
 close all
-visualization(w_clean_sort, Q,eq(earthquake_number).name, fil, eq(earthquake_number).az, earthquake_number, slowness);
-
-%%
-close all
 
 topo_data = readhgt(-23:-22,-68:-67, 'merge','interp');
 lat_sta = get(w_clean_sort, 'LAT');
@@ -470,9 +466,9 @@ end
 %floor((68-67.186035)/(lat(1,1)-lat(2,1)))-1     to determine matrix coordinates
 %for given lat and lon
 
-for index=1:numel(sta)
-    elev_on_line(index) = interp2(lon, lat, topo_data.z, LON_point_on_line(index), LAT_point_on_line(index)); %Interpolate to find elevation at points on the line
-end
+% for index=1:numel(sta)
+%     elev_on_line(index) = interp2(lon, lat, topo_data.z, LON_point_on_line(index), LAT_point_on_line(index)); %Interpolate to find elevation at points on the line
+% end
 %%
 %Calculate distance from plane to station with topography
 %elev_on_line, LAT_point_on_line, LON_point_on_line, lat_sta, lon_sta,
@@ -515,9 +511,21 @@ for i = 1:numel(sta)
     P4 = [x_of_sta(1), y_of_sta(i), elev(i)*1000];
     Distance(i) = dot(nnorm, P4)+p;
 end
-
+%%
 velocity = 4100; %velocity between -6 km and 15 km, in km/s
 travel_time_relativeToFirstStation = Distance/velocity;
+
+delay = time_vals_ref - travel_time_relativeToFirstStation;
+corr_factor = min(delay)
+delay_corrected = delay-corr_factor
+
+partial_melt_percent = partial_melt_revised(delay_corrected, eq(earthquake_number).aoi, 1);
+
+
+%%
+close all
+visualization(w_clean_sort, Q,eq(earthquake_number).name, fil, eq(earthquake_number).az, earthquake_number, delay_corrected);
+
 
 %%
 h = figure;
