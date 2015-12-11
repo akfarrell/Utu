@@ -174,5 +174,14 @@ sum_corr_matrix = [ ZZ_sum ZN_sum ZE_sum;...
                     ZE_sum NE_sum EE_sum];
 [eig_vec, eig_mat] = eig(sum_corr_matrix);
 
+%%
+l1 = eig_mat(3,3);
+l2 = eig_mat(2,2);
+l3 = eig_mat(1,1);
 
+u1 = eig_vec(:,3);
+u2 = eig_vec(:,2);
+u3 = eig_vec(:,1);
 
+P_az = atand((u2(1)*sign(u1(1)))/(u3(1)*sign(u1(1))))
+P_inc = acosd(abs(u1(1)))
