@@ -30,31 +30,31 @@ lonlim = [-67.75 -66.5]; %[western_limit eastern_limit]
 %----------- First Figure - Outer Circle with Small and Big Q-Values
 %Flipped, Filling outer circle ---------------
 
-h = figure;
-set(h, 'Position', [1000 1000 1000 1000])
-worldmap(latlim, lonlim);
-borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
-arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
-geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
-geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
-hold on
-invQ = [];
-maxval = max(Q);
-min2 = sort(Q(:));
-minval = min2(2);
-total = maxval+minval;
-
-    for i = 1:numel(Q)
-        invQ(i) = 4*(total - Q(i));
-        scatterm(lat(i), lon(i), maxval*4, 'k')
-        scatterm(lat(i),lon(i),invQ(i), 'k', 'filled')
-        dx = maxval*4/10000;
-        dy = maxval*4/10000;
-        c = cellstr(station(i));
-        textm(min(lat(i)+dx, lat(i)+0.020), min(lon(i)+dy, lon(i)+0.020), c);
-    end
-    scatterm(-22.27, -67.18, 100, '^', 'k')
-    
+% h = figure;
+% set(h, 'Position', [1000 1000 1000 1000])
+% worldmap(latlim, lonlim);
+% borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
+% arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
+% geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+% geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+% hold on
+% invQ = [];
+% maxval = max(Q);
+% min2 = sort(Q(:));
+% minval = min2(2);
+% total = maxval+minval;
+% 
+%     for i = 1:numel(Q)
+%         invQ(i) = 4*(total - Q(i));
+%         scatterm(lat(i), lon(i), maxval*4, 'k')
+%         scatterm(lat(i),lon(i),invQ(i), 'k', 'filled')
+%         dx = maxval*4/10000;
+%         dy = maxval*4/10000;
+%         c = cellstr(station(i));
+%         textm(min(lat(i)+dx, lat(i)+0.020), min(lon(i)+dy, lon(i)+0.020), c);
+%     end
+%     scatterm(-22.27, -67.18, 100, '^', 'k')
+%     
     if eq_number == 1 %ESZ
         lat_az = -21.80;
         lon_az = -66.55;
@@ -71,46 +71,18 @@ total = maxval+minval;
     hypotenuse = 0.07;
     u = hypotenuse*sind(360-az-90); %vertical
     v = hypotenuse*cosd(360-az-90); %horizontal
-    quiverm(lat_az, lon_az,u, v, 'k')
-    title(sprintf('%s',name))
-hold off
-directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
-filename = sprintf('%s_q_values1_%1.4f_%1.4f.png',name,fil(1),fil(2));
-filename_wPath = fullfile(directory,filename);
-hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
-
-
-%----------- Second Figure - Small and Big Q-Values Flipped -----------
-b = figure;
-set(b, 'Position', [1000 1000 1000 1000])
-worldmap(latlim, lonlim);
-%s = dcwdata('SOAMAFR', -21.75, -67.75, 'PO', 'line');
-borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
-arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
-geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
-geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
-hold on
-for i = 1:numel(Q)
-        invQ(i) = 4*(total - Q(i));
-        scatterm(lat(i),lon(i),invQ(i), 'k', 'filled')
-        dx = invQ(i)/10000;
-        dy = invQ(i)/10000;
-        c = cellstr(station(i));
-        textm(min(lat(i)+dx, lat(i)+0.020), min(lon(i)+dy, lon(i)+0.020), c);
-end
-scatterm(-22.27, -67.18, 100, '^', 'k')
-quiverm(lat_az, lon_az,u, v, 'k')
-title(sprintf('%s',name))
-hold off
-directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
-filename = sprintf('%s_q_values2_%1.4f_%1.4f.png',name,fil(1),fil(2));
-filename_wPath = fullfile(directory,filename);
-hgexport(b, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
-
-
-%----------- Third Figure - Contour Map -----------
-% r = figure;
-% set(r, 'Position', [1000 1000 1000 1000])
+%     quiverm(lat_az, lon_az,u, v, 'k')
+%     title(sprintf('%s',name))
+% hold off
+% directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
+% filename = sprintf('%s_q_values1_%1.4f_%1.4f.png',name,fil(1),fil(2));
+% filename_wPath = fullfile(directory,filename);
+% hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+% 
+% 
+% %----------- Second Figure - Small and Big Q-Values Flipped -----------
+% b = figure;
+% set(b, 'Position', [1000 1000 1000 1000])
 % worldmap(latlim, lonlim);
 % %s = dcwdata('SOAMAFR', -21.75, -67.75, 'PO', 'line');
 % borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
@@ -119,25 +91,54 @@ hgexport(b, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 % geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
 % hold on
 % for i = 1:numel(Q)
-%     scatterm(lat(i),lon(i), 'k', 'filled')
-%     c = cellstr(station(i));
-%     textm(lat(i)+0.020, lon(i)+0.020, c);
+%         invQ(i) = 4*(total - Q(i));
+%         scatterm(lat(i),lon(i),invQ(i), 'k', 'filled')
+%         dx = invQ(i)/10000;
+%         dy = invQ(i)/10000;
+%         c = cellstr(station(i));
+%         textm(min(lat(i)+dx, lat(i)+0.020), min(lon(i)+dy, lon(i)+0.020), c);
 % end
-% contourfm(lat, lon, Q)
-% contourcmap('jet', 'Colorbar', 'on', 'Location', 'horizontal', 'TitleString', 'Contour Intervals')
 % scatterm(-22.27, -67.18, 100, '^', 'k')
 % quiverm(lat_az, lon_az,u, v, 'k')
 % title(sprintf('%s',name))
 % hold off
-% filename = sprintf('%s_q_values_contour_%1.4f_%1.4f.png',name,fil(1),fil(2));
-% hgexport(r, filename, hgexport('factorystyle'), 'Format', 'png');
-
-%------------- Fourth Figure - Colored Dots ----------
+% directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
+% filename = sprintf('%s_q_values2_%1.4f_%1.4f.png',name,fil(1),fil(2));
+% filename_wPath = fullfile(directory,filename);
+% hgexport(b, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+% 
+% 
+% %----------- Third Figure - Contour Map -----------
+% % r = figure;
+% % set(r, 'Position', [1000 1000 1000 1000])
+% % worldmap(latlim, lonlim);
+% % %s = dcwdata('SOAMAFR', -21.75, -67.75, 'PO', 'line');
+% % borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
+% % arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
+% % geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+% % geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+% % hold on
+% % for i = 1:numel(Q)
+% %     scatterm(lat(i),lon(i), 'k', 'filled')
+% %     c = cellstr(station(i));
+% %     textm(lat(i)+0.020, lon(i)+0.020, c);
+% % end
+% % contourfm(lat, lon, Q)
+% % contourcmap('jet', 'Colorbar', 'on', 'Location', 'horizontal', 'TitleString', 'Contour Intervals')
+% % scatterm(-22.27, -67.18, 100, '^', 'k')
+% % quiverm(lat_az, lon_az,u, v, 'k')
+% % title(sprintf('%s',name))
+% % hold off
+% % filename = sprintf('%s_q_values_contour_%1.4f_%1.4f.png',name,fil(1),fil(2));
+% % hgexport(r, filename, hgexport('factorystyle'), 'Format', 'png');
+% 
+% %------------- Fourth Figure - Colored Dots ----------
 p=figure; hold on;
 set(p, 'Position', [1000 1000 1000 1000])
 worldmap(latlim, lonlim);
 %s = dcwdata('SOAMAFR', -21.75, -67.75, 'PO', 'line');
 borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
+colormap(flipud(colormap))
 arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
 geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
 geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
@@ -168,6 +169,6 @@ quiverm(lat_az, lon_az,u, v, 'k')
 title(sprintf('%s Slowness',name))
 hold off
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
-filename = sprintf('%s_slowness_%1.4f_%1.4f.png',name,fil(1),fil(2));
+filename = sprintf('%s_slowness1_%1.4f_%1.4f.png',name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');

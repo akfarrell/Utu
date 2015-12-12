@@ -302,7 +302,7 @@ end
 
 time_vals_ref = [];
 if earthquake_number == 9
-    ref_time = time_values(1);
+    ref_time = time_values(3);
 end
 for values = 1:numel(time_values)
     timelag = (time_values(values)-ref_time)*SECS2DAY;
@@ -511,20 +511,81 @@ for i = 1:numel(sta)
     P4 = [x_of_sta(1), y_of_sta(i), elev(i)*1000];
     Distance(i) = dot(nnorm, P4)+p;
 end
+
+if strcmp(eq(earthquake_number).name, 'JSZ4')
+    Distance_corr = Distance - Distance(3);
+end
 %%
-velocity = 4100; %velocity between -6 km and 15 km, in km/s
-travel_time_relativeToFirstStation = Distance/velocity;
+% velocity = 4100; %velocity between -6 km and 15 km, in m/s
+% travel_time_relativeToFirstStation = Distance/velocity;
+% 
+% delay = time_vals_ref - travel_time_relativeToFirstStation;
+% corr_factor = min(delay)
+% delay_corrected = delay-corr_factor
+% 
+% %partial_melt_percent = partial_melt_revised(delay_corrected, eq(earthquake_number).aoi, 1);
 
-delay = time_vals_ref - travel_time_relativeToFirstStation;
-corr_factor = min(delay)
-delay_corrected = delay-corr_factor
 
-partial_melt_percent = partial_melt_revised(delay_corrected, eq(earthquake_number).aoi, 1);
+velocity = [4100, 2500, 7000];
+for v_val = 1:numel(velocity)
+    travel_time_relativeToFirstStation_tries = Distance_corr/velocity(v_val);
+    delay_corrected(v_val, :) = time_vals_ref - travel_time_relativeToFirstStation_tries;
+    %corr_factor = min(delay);
+    %delay_corrected(v_val,:) = delay-corr_factor;
+end
+
+
+%%
+
+g = figure;
+set(g, 'Position', [1000 1000 1000 1000])
+ind_var = linspace(0,max(Distance_corr),10);
+zeroes = linspace(0,0,10);
+for p = 1:numel(ind_var)
+    dep_var(p) = ind_var(p);
+end
+plot(ind_var, dep_var, 'k')
+scatter(Distance_corr, delay_corrected(1,:), 'k')
+hold on
+scatter(Distance_corr, delay_corrected(2,:), 'm')
+scatter(Distance_corr, delay_corrected(3,:))
+plot(ind_var, zeroes, 'k-.')
+text(Distance_corr+0.01, delay_corrected(1,:), sta);
+xlabel('Distance (m)')
+ylabel('Time Values with Reference to Closest Station (s)')
+filename = sprintf('%s_timeVsDist_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename_wPath = fullfile(directory,filename);
+hgexport(g, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+
+r = figure;
+set(g, 'Position', [1000 1000 1000 1000])
+ind_var = linspace(0,max(Distance_corr),10);
+zeroes = linspace(0,0,10);
+for p = 1:numel(ind_var)
+    dep_var(p) = ind_var(p);
+end
+plot(ind_var, dep_var, 'k')
+scatter(delay_corrected(1,:), Q, 'k')
+text(delay_corrected(1,:), Q, sta);
+hold on
+scatter(delay_corrected(2,:), Q, 'm')
+scatter(delay_corrected(3,:), Q)
+xlabel('Time Delay (s)')
+ylabel('Apparent Q')
+filename = sprintf('%s_QvsDelay_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename_wPath = fullfile(directory,filename);
+hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+
+
+
+
+
+
 
 
 %%
 close all
-visualization(w_clean_sort, Q,eq(earthquake_number).name, fil, eq(earthquake_number).az, earthquake_number, delay_corrected);
+visualization(w_clean_sort, Q,eq(earthquake_number).name, fil, eq(earthquake_number).az, earthquake_number, delay_corrected(1,:));
 
 
 %%
@@ -565,23 +626,7 @@ filename = sprintf('%s_wavefront_%1.4f_%1.4f.png',eq(earthquake_number).name,fil
 filename_wPath = fullfile(directory,filename);
 hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 %%
-g = figure;
-set(g, 'Position', [1000 1000 1000 1000])
-ind_var = linspace(0,max(wave_to_sta_dist),10);
-zeroes = linspace(0,0,10);
-for p = 1:numel(ind_var)
-    dep_var(p) = ind_var(p);
-end
-plot(ind_var, dep_var, 'k')
-hold on
-plot(ind_var, zeroes, 'k-.')
-scatter(wave_to_sta_dist, time_vals_ref, 'o', 'k');
-text(wave_to_sta_dist+0.01, time_vals_ref, sta);
-xlabel('Distance (deg)')
-ylabel('Time Values with Reference to Closest Station (s)')
-filename = sprintf('%s_timeVsDist_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
-filename_wPath = fullfile(directory,filename);
-hgexport(g, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+
 
 %%
 % w_clean_tp = taper(w_clean, 0.2);

@@ -183,5 +183,5 @@ u1 = eig_vec(:,3);
 u2 = eig_vec(:,2);
 u3 = eig_vec(:,1);
 
-P_az = atand((u2(1)*sign(u1(1)))/(u3(1)*sign(u1(1))))
+P_az = atand((u1(2)*sign(u1(1)))/(u1(3)*sign(u1(1))))
 P_inc = acosd(abs(u1(1)))
