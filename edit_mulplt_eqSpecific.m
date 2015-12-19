@@ -179,7 +179,11 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
                 end
             else
                 data = data(index-range_val:index+range_val);
+                pasta = 'dessert'
             end
+        else
+            data = data(index-range_val:index+range_val);
+            turkey = 'dinner'
         end
         
         
@@ -213,6 +217,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             wavnum
             time_value = dnum(I+(index-range_val));
             I_fullData = I+(index-range_val)-1;
+            cat = 'dog'
         end
 time_value
 %         derp = dnum(index);  

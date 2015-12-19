@@ -54,23 +54,42 @@ lonlim = [-67.75 -66.5]; %[western_limit eastern_limit]
 %         textm(min(lat(i)+dx, lat(i)+0.020), min(lon(i)+dy, lon(i)+0.020), c);
 %     end
 %     scatterm(-22.27, -67.18, 100, '^', 'k')
-%     
-    if eq_number == 1 %ESZ
-        lat_az = -21.80;
-        lon_az = -66.55;
-    elseif eq_number > 1 && eq_number < 6 %KTSZ
-        lat_az = -22.70;
-        lon_az = -67.70;
-    elseif eq_number > 5 && eq_number < 10 %JSZ
-        lat_az = -21.85;
-        lon_az = -67.60;
-    else %SSSZ
-        lat_az = -22.70;
-        lon_az = -66.55;
-    end
-    hypotenuse = 0.07;
+  hypotenuse = 0.07;     
+  if eq_number >=6 && eq_number<=9
+    lat_az = -22.05;
+    lon_az = -67.60;
     u = hypotenuse*sind(360-az-90); %vertical
     v = hypotenuse*cosd(360-az-90); %horizontal
+  elseif eq_number >=2 && eq_number<=5
+    lat_az = -22.7;
+    lon_az = -67.60;
+    u = hypotenuse*cosd(az); %vertical
+    v = hypotenuse*sind(az); %horizontal
+  elseif eq_number >=10 && eq_number<=14
+    lat_az = -22.7;
+    lon_az = -66.95;
+    u = hypotenuse*sind(az-90); %vertical
+    v = hypotenuse*-cosd(az-90); %horizontal
+  end  
+
+
+% 
+% if eq_number == 1 %ESZ
+%         lat_az = -21.80;
+%         lon_az = -66.55;
+%     elseif eq_number > 1 && eq_number < 6 %KTSZ
+%         lat_az = -22.70;
+%         lon_az = -67.70;
+%     elseif eq_number > 5 && eq_number < 10 %JSZ
+%         lat_az = -21.85;
+%         lon_az = -67.60;
+%     else %SSSZ
+%         lat_az = -22.70;
+%         lon_az = -66.55;
+%     end
+
+%     u = hypotenuse*sind(360-az-90); %vertical
+%     v = hypotenuse*cosd(360-az-90); %horizontal
 %     quiverm(lat_az, lon_az,u, v, 'k')
 %     title(sprintf('%s',name))
 % hold off
@@ -143,7 +162,7 @@ arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
 geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
 geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
 scatterm(lat,lon,20^2,Q,'filled');
-textm(lat+0.006,lon+0.025,station); colorbar
+textm(lat-0.04,lon-0.025,station); colorbar
 scatterm(-22.27, -67.18, 100, '^', 'k')
 quiverm(lat_az, lon_az,u, v, 'k')
 title(sprintf('%s Q Values',name))
