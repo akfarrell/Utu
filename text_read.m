@@ -19,7 +19,8 @@ function all_eq_all_filt_struct = text_read()
 %   Author: Alexandra Farrell 2015/6/16
 %
 clear
-directories = dir('*SZ*');
+%directories = dir('*SZ*');
+directories = dir('JSZ*');
 for k = length(directories):-1:1
     if ~directories(k).isdir
         directories(k) = [];
@@ -41,8 +42,8 @@ for t = 1:length(directories)
         C = textscan(fid, '%s %10.5f %10.3f %10.4f');
         fclose(fid);
         f = {'Station','Q','Freq', 'Time_offset'};
-        struct.(dirName).(corrFileName) = cell2struct(C,f,2);
+        structure.(dirName1).(corrFileName) = cell2struct(C,f,2);
     end
     cd ../..
 end
-all_eq_all_filt_struct = struct;
+all_eq_all_filt_struct = structure;

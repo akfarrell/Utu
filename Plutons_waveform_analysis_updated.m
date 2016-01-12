@@ -14,7 +14,7 @@ addpath('/raid/apps/src/gismotools/GISMO')
 startup_GISMO
 
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 9;
+earthquake_number = 6;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 utu_lat = -22.27;
@@ -35,7 +35,7 @@ eq(6) = struct('name', 'JSZ1', 'snum', datenum(2010, 11, 30, 3, 43, 35), 'enum',
 %JSZ2
 eq(7) = struct('name', 'JSZ2', 'snum', datenum(2011, 1, 12, 21, 51, 45), 'enum', datenum(2011, 1, 12, 21, 51, 55), 'lat', 26.98, 'lon', 139.87, 'depth', 527, 'mag', 6.4, 'evtime', datenum(2011, 1, 12, 21, 32, 55), 'freq', 1/1.5, 'az', 286, 'aoi', 4);
 %JSZ3
-eq(8) = struct('name', 'JSZ3', 'snum', datenum(2011, 5, 10, 15, 44, 52), 'enum', datenum(2011, 5, 10, 15, 45, 2), 'lat', 43.29, 'lon', 130.94, 'depth', 544, 'mag', 5.4, 'evtime', datenum(2011, 5, 10, 15, 26, 5), 'freq', 1/1.3, 'az', 286, 'aoi', 4);
+eq(8) = struct('name', 'JSZ3', 'snum', datenum(2011, 5, 10, 15, 44, 52), 'enum', datenum(2011, 5, 10, 15, 45, 2), 'lat', 43.29, 'lon', 130.94, 'depth', 544, 'mag', 5.4, 'evtime', datenum(2011, 5, 10, 15, 26, 5), 'freq', 1/1.3, 'az', 329, 'aoi', 4);
 %JSZ4
 eq(9) = struct('name', 'JSZ4', 'snum', datenum(2011, 10, 4, 1, 56, 25), 'enum', datenum(2011, 10, 4, 1, 56, 40), 'lat', 26.77, 'lon', 140.43, 'depth', 455, 'mag', 5.6, 'evtime', datenum(2011, 10, 4, 1, 37, 29), 'freq', 1/1.3, 'az', 286, 'aoi', 4);
 %SSSZ1
@@ -399,14 +399,7 @@ sta = [get(w_clean_sort, 'station')];
 
 [stas,Q] = q_calc(w_clean_sort, 5.15, 20, sig_freq);
 
-directory = sprintf('/home/a/akfarrell/Uturuncu/%s/text', eq(earthquake_number).name);
-filename2 = sprintf('%s_output_diffFreq_%1.4f_%1.4f.txt',eq(earthquake_number).name,fil(1),fil(2));
-dif=fopen(fullfile(directory,filename2), 'w');
-for i=1:length(stas)
-    fprintf(dif,'%s %10.5f %10.3f %10.4f\n',stas(i,:),Q(i),sig_freq(i), slowness(i));
-    i
-end
-st = fclose('all');
+
 
 %%
 close all
@@ -422,32 +415,36 @@ elev = get(w_clean_sort, 'ELEV')*1000; %elevation in m
 [dist2, az_eq_volc] = distance(eq(earthquake_number).lat, eq(earthquake_number).lon, utu_lat, utu_lon);
 
 % ----Calc line of intersection of planar wave with surface at closest station
-if earthquake_number == 9
-    lat_ref = lat_sta(1);
-    lon_ref = lon_sta(1);
-    elev_ref = elev(1);
-elseif earthquake_number == 3
-    lat_ref = lat_sta(1);
-    lon_ref = lon_sta(1);
-    elev_ref = elev(1);
-elseif earthquake_number == 10 %%%%%%%%%CHANGE!
-    lat_ref = lat_sta(1);
-    lon_ref = lon_sta(1);
-    elev_ref = elev(1);
-end
+% if earthquake_number == 9
+%     lat_ref = lat_sta(1);
+%     lon_ref = lon_sta(1);
+%     elev_ref = elev(1);
+% elseif earthquake_number == 3
+%     lat_ref = lat_sta(1);
+%     lon_ref = lon_sta(1);
+%     elev_ref = elev(1);
+% elseif earthquake_number == 10 %%%%%%%%%CHANGE!
+%     lat_ref = lat_sta(1);
+%     lon_ref = lon_sta(1);
+%     elev_ref = elev(1);
+% end
+
+lat_ref = lat_sta(1);
+lon_ref = lon_sta(1);
+elev_ref = elev(1);
+
 %%
 %x1 = lat_ref; y1 = lon_ref;
 [x1,y1] = ll2utm(lat_ref, lon_ref);
 if earthquake_number >=6 && earthquake_number<=9
     m = 1/tand(az_volc_eq-270);
 elseif earthquake_number >=2 && earthquake_number<=5
-    m = tand(az_volc_eq-180);
+    m = -1/tand(270-az_volc_eq);
 end
 C = -m*x1+y1; %intercept
 A = m; %slope
-%B = -1;
+B = -1;
 
-%%
 
 [x_of_sta, y_of_sta]= ll2utm(lat_sta, lon_sta); %calculate utm coordinates of station locations, in m
 x_1 = [x_of_sta(1), y_of_sta(1)];
@@ -457,14 +454,38 @@ for i = 1:numel(x_of_sta)
     y_2_vals(i) = A*(x_of_sta(i))+C;
 end
 
+for j = 1:numel(sta)
+     wave_to_sta_dist(j) = (abs(A*(x_of_sta(j))+B*(y_of_sta(j))+C)/sqrt(A^2 + B^2)); %distance map view from point to line
+     inc_ang = eq(earthquake_number).aoi-atand((elev(1)-elev(j))/wave_to_sta_dist(j));
+     if isnan(inc_ang)
+         inc_ang = eq(earthquake_number).aoi;
+     end
+     if earthquake_number >=6 && earthquake_number<=9
+         y_vals = sind(az_volc_eq-270)*wave_to_sta_dist(j);
+         x_vals = cosd(az_volc_eq-270)*wave_to_sta_dist(j);
+         x_point_on_line(j) = x_of_sta(j)-x_vals;
+         y_point_on_line(j) = y_of_sta(j)+y_vals;
+     elseif earthquake_number >=2 && earthquake_number<=5
+         y_vals = sind(270-az_volc_eq)*wave_to_sta_dist(j);
+         x_vals = cosd(270-az_volc_eq)*wave_to_sta_dist(j); 
+         x_point_on_line(j) = x_of_sta(j)-x_vals;
+         y_point_on_line(j) = y_of_sta(j)-y_vals;
+     end
+     map_dist(j) = sqrt((sqrt((x_of_sta(j)-x_point_on_line(j))^2+(y_of_sta(j)-y_point_on_line(j))^2))^2+(elev(1)-elev(j))^2);
+     derp(j) = sqrt((sqrt((x_of_sta(j)-x_point_on_line(j))^2+(y_of_sta(j)-y_point_on_line(j))^2))^2+(elev(1)-elev(j))^2)*sind(inc_ang);
+end
+%derp
+%(y_point_on_line(2)-y_point_on_line(1))/(x_point_on_line(2)-x_point_on_line(1))-m
+% ^above to check that the slope of points on line = slope of line
+
 change_in_depth = 1000; %change in depth along plane, in m
 diff_on_line = change_in_depth/tand(eq(earthquake_number).aoi); %hypotenuse of map view 
 if earthquake_number >=6 && earthquake_number<=9
     third_point_x = x_of_sta(1)+diff_on_line*(cosd(az_volc_eq-270));
     third_point_y = y_of_sta(1)-diff_on_line*(sind(az_volc_eq-270));
 elseif earthquake_number >=2 && earthquake_number<=5
-    third_point_x = x_of_sta(1)+diff_on_line*(sind(90-(270-az_volc_eq)));
-    third_point_y = y_of_sta(1)-diff_on_line*(sind(90-(270-az_volc_eq)));
+    third_point_x = x_of_sta(1)+diff_on_line*(cosd(270-az_volc_eq));
+    third_point_y = y_of_sta(1)+diff_on_line*(sind(270-az_volc_eq));
 elseif earthquake_number >=10 && earthquake_number<=14 %%%CHANGE!
     third_point_x = x_of_sta(1)+diff_on_line*(sind(90-(270-az_volc_eq)));
     third_point_y = y_of_sta(1)-diff_on_line*(sind(90-(270-az_volc_eq)));
@@ -472,10 +493,8 @@ end
 
 [third_point_lat, third_point_lon] = utm2ll(third_point_x, third_point_y, -19); %convert this third point from UTM to lat lon
 [lat_2_vals, lon_2_vals] = utm2ll(x_2_vals, y_2_vals, -19); %convert this third point from UTM to lat lon
+[lat_point_on_line, lon_point_on_line] = utm2ll(x_point_on_line, y_point_on_line, -19); %convert points on line to lat lon
 
-
-g = figure;
-set(g, 'Position', [1000 1000 1000 1000])
 
 h = figure;
 latlim = [min(min(lat_2_vals),min(lat_sta))-0.15 max(max(lat_2_vals),max(lat_sta))+0.15]; %[southern_limit northern_limit] 
@@ -490,7 +509,8 @@ hold on
 scatterm(lat_sta, lon_sta, '^', 'k')
 scatterm(lat_2_vals, lon_2_vals, 'm', 'filled')
 scatterm(third_point_lat, third_point_lon, 'c', 'filled')
-textm(lat_sta, lon_sta, sta)
+scatterm(lat_point_on_line, lon_point_on_line, 'r', 'filled')
+textm(lat_sta+0.01, lon_sta, sta)
 hypotenuse = 0.07;
 if earthquake_number >=6 && earthquake_number<=9
     lat_az = -21.85;
@@ -529,13 +549,13 @@ x = [P1(1) P2(1) P3(1)];
 y = [P1(2) P2(2) P3(2)];
 z = [P1(3) P2(3) P3(3)];
 
-A = normal(1); B = normal(2); C = normal(3);
+A = normal(1); B = normal(2); C = normal(3); %redefined from slope above
 D = -dot(normal, P1);
 nnorm = normal/norm(normal);
 p = D/norm(normal);
 for i = 1:numel(sta)
-    P4 = [x_of_sta(1), y_of_sta(i), elev(i)];
-    Distance(i) = dot(nnorm, P4)+p;
+    P4 = [x_of_sta(i), y_of_sta(i), elev(i)];
+    Distance(i) = (dot(nnorm, P4)+p);
 end
 %%
 if strcmp(eq(earthquake_number).name, 'JSZ4')
@@ -547,37 +567,49 @@ elseif strcmp(eq(earthquake_number).name, 'SSSZ1') %%%%%%%%%%CHANGE!!!
 end
 
 velocity = 4100; %velocity between -6 km and 15 km, in m/s
-travel_time_relativeToFirstStation = Distance/velocity;
+travel_time_relativeToFirstStation = derp/velocity;
 
 delay = time_vals_ref - travel_time_relativeToFirstStation;
-if strcmp(eq(earthquake_number).name, 'JSZ4')
-    delay(2) = NaN;
+% if strcmp(eq(earthquake_number).name, 'JSZ4')
+%     delay(2) = NaN;
+% end
+[corr_factor, index] = min(delay);
+
+%delay_corrected = delay-corr_factor;
+corr_vel =  derp(index)/time_vals_ref(index)
+
+directory = sprintf('/home/a/akfarrell/Uturuncu/%s/text', eq(earthquake_number).name);
+filename2 = sprintf('%s_output_diffFreq_%1.4f_%1.4f.txt',eq(earthquake_number).name,fil(1),fil(2));
+dif=fopen(fullfile(directory,filename2), 'w');
+for i=1:length(stas)
+    fprintf(dif,'%s %10.5f %10.3f %10.4f\n',stas(i,:),Q(i),sig_freq(i), delay(i));
 end
-corr_factor = min(delay);
-delay_corrected = delay-corr_factor;
+st = fclose('all');
 
 %%
 
 g = figure;
 set(g, 'Position', [1000 1000 1000 1000])
-ind_var = linspace(min(Distance),max(Distance),10);
+ind_var = linspace(min(derp),max(derp),10);
 zeroes = linspace(0,0,10);
 for p = 1:numel(ind_var)
     dep_var(p) = ind_var(p);
 end
 %plot(ind_var, dep_var, 'k')
-scatter(Distance, delay, 'k')
+scatter(derp, delay, 'k')
 %scatter(Distance_corr, delay_corrected(1,:), 'k')
 hold on
 %scatter(Distance_corr, delay_corrected(2,:), 'm')
 %scatter(Distance_corr, delay_corrected(3,:))
 %plot(ind_var, zeroes, 'k-.')
-text(Distance+0.01, delay, sta);
+text(derp+30, delay, sta);
 xlabel('Distance (m)')
 ylabel('Time Values with Reference to Closest Station (s)')
+directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
 filename = sprintf('%s_timeVsDist_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(g, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+
 
 r = figure;
 set(r, 'Position', [1000 1000 1000 1000])
@@ -585,12 +617,13 @@ zeroes = linspace(0,0,10);
 hold on
 scatter(delay, Q, 'k')
 %scatter(delay_corrected(1,:), Q, 'k')
-text(delay, Q, sta);
+text(delay+0.008, Q, sta);
 hold on
 %scatter(delay_corrected(2,:), Q, 'm')
 %scatter(delay_corrected(3,:), Q)
 xlabel('Time Delay (s)')
 ylabel('Apparent Q')
+directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
 filename = sprintf('%s_QvsDelay_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
