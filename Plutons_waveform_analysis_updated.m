@@ -6,6 +6,7 @@ close all
 startup_seismiclab
 addpath(genpath('/raid/apps/src/GEOTOOLS/matlab_util'))
 addpath('data_func_matTaup/')
+addpath('lldistkm/')
 addpath('latlonutm/Codes/matlab/')
 addpath('readhgt/')
 NEWGISMODIR=fullfile('/raid/apps/matlab/toolbox/GISMO/startup_GISMO.m');
@@ -14,7 +15,7 @@ addpath('/raid/apps/src/gismotools/GISMO')
 startup_GISMO
 
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 6;
+earthquake_number = 2;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 utu_lat = -22.27;
@@ -31,11 +32,11 @@ eq(4) = struct('name', 'KTSZ3', 'snum', datenum(2011, 9, 15, 19, 43, 45), 'enum'
 %KTSZ4
 eq(5) = struct('name', 'KTSZ4', 'snum', datenum(2012, 1, 24, 1, 4, 50), 'enum', datenum(2012, 1, 24, 1, 5, 5), 'lat', -24.98, 'lon', 178.52, 'depth', 580, 'mag', 6.3, 'evtime', datenum(2012, 1, 24, 0, 52, 5), 'freq', 1/3.4, 'az', 57, 'aoi', 13);
 %JSZ1
-eq(6) = struct('name', 'JSZ1', 'snum', datenum(2010, 11, 30, 3, 43, 35), 'enum', datenum(2010, 11, 30, 3, 43, 45), 'lat', 28.36, 'lon', 139.15, 'depth', 486, 'mag', 6.8, 'evtime', datenum(2010, 11, 30, 3, 24, 41), 'freq', 1/1.3, 'az', 290, 'aoi', 3);
+eq(6) = struct('name', 'JSZ1', 'snum', datenum(2010, 11, 30, 3, 43, 35), 'enum', datenum(2010, 11, 30, 3, 43, 45), 'lat', 28.36, 'lon', 139.15, 'depth', 486, 'mag', 6.8, 'evtime', datenum(2010, 11, 30, 3, 24, 41), 'freq', 1/1.3, 'az', 290, 'aoi', 4);
 %JSZ2
 eq(7) = struct('name', 'JSZ2', 'snum', datenum(2011, 1, 12, 21, 51, 45), 'enum', datenum(2011, 1, 12, 21, 51, 55), 'lat', 26.98, 'lon', 139.87, 'depth', 527, 'mag', 6.4, 'evtime', datenum(2011, 1, 12, 21, 32, 55), 'freq', 1/1.5, 'az', 286, 'aoi', 4);
 %JSZ3
-eq(8) = struct('name', 'JSZ3', 'snum', datenum(2011, 5, 10, 15, 44, 52), 'enum', datenum(2011, 5, 10, 15, 45, 2), 'lat', 43.29, 'lon', 130.94, 'depth', 544, 'mag', 5.4, 'evtime', datenum(2011, 5, 10, 15, 26, 5), 'freq', 1/1.3, 'az', 329, 'aoi', 4);
+eq(8) = struct('name', 'JSZ3', 'snum', datenum(2011, 5, 10, 15, 44, 52), 'enum', datenum(2011, 5, 10, 15, 45, 2), 'lat', 43.29, 'lon', 130.94, 'depth', 544, 'mag', 5.4, 'evtime', datenum(2011, 5, 10, 15, 26, 5), 'freq', 1/1.3, 'az', 329, 'aoi', 3);
 %JSZ4
 eq(9) = struct('name', 'JSZ4', 'snum', datenum(2011, 10, 4, 1, 56, 25), 'enum', datenum(2011, 10, 4, 1, 56, 40), 'lat', 26.77, 'lon', 140.43, 'depth', 455, 'mag', 5.6, 'evtime', datenum(2011, 10, 4, 1, 37, 29), 'freq', 1/1.3, 'az', 286, 'aoi', 4);
 %SSSZ1
@@ -297,6 +298,8 @@ end
 if numel(tshift_time_days) == numel(w_clean_sort)
     [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w_clean_sort, 0, absMax, absMin, eq(earthquake_number).name, fil, tshift_time_days);
 end
+%%
+[P_az, P_inc] = directionality(eq(earthquake_number), earthquake_number, index_values, fil, order)
 %time_values in dnum
 %%
 
@@ -435,7 +438,7 @@ elev_ref = elev(1);
 
 %%
 %x1 = lat_ref; y1 = lon_ref;
-[x1,y1] = ll2utm(lat_ref, lon_ref);
+[x1,y1,zone] = ll2utm(lat_ref, lon_ref);
 if earthquake_number >=6 && earthquake_number<=9
     m = 1/tand(az_volc_eq-270);
 elseif earthquake_number >=2 && earthquake_number<=5
@@ -444,7 +447,6 @@ end
 C = -m*x1+y1; %intercept
 A = m; %slope
 B = -1;
-
 
 [x_of_sta, y_of_sta]= ll2utm(lat_sta, lon_sta); %calculate utm coordinates of station locations, in m
 x_1 = [x_of_sta(1), y_of_sta(1)];
@@ -566,7 +568,7 @@ elseif strcmp(eq(earthquake_number).name, 'SSSZ1') %%%%%%%%%%CHANGE!!!
     Distance_corr = Distance - Distance(3);
 end
 
-velocity = 4100; %velocity between -6 km and 15 km, in m/s
+velocity = 8800; %velocity between -6 km and 15 km, in m/s
 travel_time_relativeToFirstStation = derp/velocity;
 
 delay = time_vals_ref - travel_time_relativeToFirstStation;
@@ -577,6 +579,14 @@ delay = time_vals_ref - travel_time_relativeToFirstStation;
 
 %delay_corrected = delay-corr_factor;
 corr_vel =  derp(index)/time_vals_ref(index)
+
+sta_s.x_of_sta = x_of_sta;
+sta_s.y_of_sta = y_of_sta;
+sta_s.elev = elev;
+sta_s.map_dist = map_dist;
+sta_s.derp = derp;
+sta_s.aoi = eq(earthquake_number).aoi;
+sta_s.time_vals_ref = time_vals_ref;
 
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/text', eq(earthquake_number).name);
 filename2 = sprintf('%s_output_diffFreq_%1.4f_%1.4f.txt',eq(earthquake_number).name,fil(1),fil(2));
@@ -628,6 +638,9 @@ filename = sprintf('%s_QvsDelay_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(
 filename_wPath = fullfile(directory,filename);
 hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
+%%
+
+partial_melt_percent = partial_melt_revised(delay2, eq(earthquake_number).aoi, 1, 20);
 
 
 

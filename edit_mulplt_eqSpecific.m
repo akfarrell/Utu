@@ -236,7 +236,7 @@ time_value
         %line([get(w(wavnum), 'EX_ARR_TIME'), get(w(wavnum), 'EX_ARR_TIME')], [yl(1), yl(2)], 'Color', 'k');
         %hold on
         line([time_value, time_value], [yl(1), yl(2)], 'Color', 'k', 'LineWidth', 2);
-%         line([derp, derp], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
+         line([time_values(1), time_values(1)], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value1, time_value1], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value3, time_value3], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value4, time_value4], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);

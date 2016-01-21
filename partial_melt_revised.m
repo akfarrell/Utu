@@ -1,4 +1,4 @@
-%function per_melt = partial_melt_revised(delay, aoi, model_number)
+%function per_melt = partial_melt_revised(delay, aoi, model_number,thickness)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -42,7 +42,7 @@ TT_for_20_km = [3.80, 3.81, 3.82, 3.82, 3.83, 3.84, 3.85, 3.86, 3.87, 3.87...   
 tolerance = 0.005;   
 Vp_solid = 5.27;
 if model_number == 1 %Using just the velocities of the UTU velocity model, in same 20-km space as Ward anomaly
-    thickness = 70; %thickness of partial melt body, in km
+    %thickness = 70; %thickness of partial melt body, in km
     dist_in_magma = thickness/cosd(aoi); %distance ray travels through magma, in km
     top_distance = (15-4)/cosd(aoi); top_velocity = 4.1; %distance in top part of velocity model in km and velocity of this space in km/s
     bottom_distance = (25-15)/cosd(aoi); bottom_velocity = 6.4; %distance in bottom part of velocity model in km and velocity of this space in km/s
@@ -62,6 +62,13 @@ if model_number == 1 %Using just the velocities of the UTU velocity model, in sa
             end
         end
     end
+elseif model_number == 2 %using velocities from the 2-D Ward model
+    vel_s = load('Heather_vel_things/3D_1.75_Utur_0.1km.mat') %structure of velocities
+    vel_deps = vel_s.zmod;
+    p_vels = 1000*vel_s.apvel; %p-wave velocity in m/s
+    elevs = -sta_s.elev; %elevations, negative. Sea level = 0, deeper => positive
+    vel_deps_corr = (vel_deps-3.5)*1000; %depths corrected for sea level, in m
+    dist_in_vel = 100/cosd(aoi);
 
 end
 per_melt
