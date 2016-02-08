@@ -15,7 +15,7 @@ addpath('/raid/apps/src/gismotools/GISMO')
 startup_GISMO
 
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 2;
+earthquake_number = 12;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 utu_lat = -22.27;
@@ -197,14 +197,16 @@ for l = 2:numel(data)
     dnum(l) = datenum(l/freq/days2secs+dnum(1));
 end
 if strcmp(eq(earthquake_number).name, 'KTSZ1')
-    data = data(1:300);
-    [ref_amp, ref_index] = nanmax(data);
+    data = data(1:400);
+    [ref_amp, ref_index] = nanmin(data);
     time_value_ref = dnum(ref_index); %reference time of minimum of first station
     start_time_ref = dnum(1); %start time of waveforms
     diff_time_ref = time_value_ref - start_time_ref %difference between start time of series and phase time
 elseif strcmp(eq(earthquake_number).name, 'KTSZ3') || strcmp(eq(earthquake_number).name, 'KTSZ4') || strcmp(eq(earthquake_number).name, 'SSSZ2')
     if strcmp(eq(earthquake_number).name, 'KTSZ4') && fil(1) == 0.1875 && fil(2) == 3.000 
         data = data(300:500);
+    elseif strcmp(eq(earthquake_number).name, 'KTSZ4') && fil(1) == 0.3750 && fil(2) == 1.500
+        data = data(1:400);
     else
         data = data(1:500);
     end
@@ -298,6 +300,8 @@ end
 if numel(tshift_time_days) == numel(w_clean_sort)
     [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w_clean_sort, 0, absMax, absMin, eq(earthquake_number).name, fil, tshift_time_days);
 end
+[norm_ems, rev_n_ems] = amp_comp(m_values);
+
 %%
 [P_az, P_inc] = directionality(eq(earthquake_number), earthquake_number, index_values, fil, order)
 %time_values in dnum
@@ -443,6 +447,8 @@ if earthquake_number >=6 && earthquake_number<=9
     m = 1/tand(az_volc_eq-270);
 elseif earthquake_number >=2 && earthquake_number<=5
     m = -1/tand(270-az_volc_eq);
+else
+    m = 1/tand(az_volc_eq-90);
 end
 C = -m*x1+y1; %intercept
 A = m; %slope
@@ -471,6 +477,11 @@ for j = 1:numel(sta)
          y_vals = sind(270-az_volc_eq)*wave_to_sta_dist(j);
          x_vals = cosd(270-az_volc_eq)*wave_to_sta_dist(j); 
          x_point_on_line(j) = x_of_sta(j)-x_vals;
+         y_point_on_line(j) = y_of_sta(j)-y_vals;
+     else
+         y_vals = sind(az_volc_eq-90)*wave_to_sta_dist(j);
+         x_vals = cosd(az_volc_eq-90)*wave_to_sta_dist(j); 
+         x_point_on_line(j) = x_of_sta(j)+x_vals;
          y_point_on_line(j) = y_of_sta(j)-y_vals;
      end
      map_dist(j) = sqrt((sqrt((x_of_sta(j)-x_point_on_line(j))^2+(y_of_sta(j)-y_point_on_line(j))^2))^2+(elev(1)-elev(j))^2);
@@ -578,7 +589,7 @@ delay = time_vals_ref - travel_time_relativeToFirstStation;
 [corr_factor, index] = min(delay);
 
 %delay_corrected = delay-corr_factor;
-corr_vel =  derp(index)/time_vals_ref(index)
+corr_vel =  derp(index)/time_vals_ref(index);
 
 sta_s.x_of_sta = x_of_sta;
 sta_s.y_of_sta = y_of_sta;
@@ -592,7 +603,7 @@ directory = sprintf('/home/a/akfarrell/Uturuncu/%s/text', eq(earthquake_number).
 filename2 = sprintf('%s_output_diffFreq_%1.4f_%1.4f.txt',eq(earthquake_number).name,fil(1),fil(2));
 dif=fopen(fullfile(directory,filename2), 'w');
 for i=1:length(stas)
-    fprintf(dif,'%s %10.5f %10.3f %10.4f\n',stas(i,:),Q(i),sig_freq(i), delay(i));
+    fprintf(dif,'%s %10.5f %10.3f %10.4f %10.4f %10.4f\n',stas(i,:),Q(i),sig_freq(i), delay(i), norm_ems(i), rev_n_ems(i));
 end
 st = fclose('all');
 
@@ -640,7 +651,7 @@ hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
 %%
 
-partial_melt_percent = partial_melt_revised(delay2, eq(earthquake_number).aoi, 1, 20);
+%partial_melt_percent = partial_melt_revised(delay2, eq(earthquake_number).aoi, 1, 20);
 
 
 

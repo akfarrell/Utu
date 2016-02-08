@@ -122,16 +122,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         end
         index+range_val;
         %index-range_val;
-        if strcmp(name, 'KTSZ4')
-            if fil(1) == 0.375 && fil(2) == 1.5
-                data = data(index-100:index+50);
-            elseif fil(1) == 0.1875 && fil(2) == 3.000
-                data = data(index-20:index+range_val+100);
-            else
-                data = data(index-range_val:index+range_val);
-                numel(data)
-            end
-        end
+
         if strcmp(name, 'JSZ3') && fil(1) == 0.1875 && fil(2) == 0.7500 && (wavnum == 18 || wavnum == 22) %exception for this filter PLLL & PLWB
             range_val = range_val-50;
         elseif strcmp(name, 'SSSZ1') && fil(1) == 0.1875 && fil(2) == 3.000
@@ -177,8 +168,15 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
                 else
                     data = data(index-range_val:index+90);
                 end
+            elseif strcmp(name,'KTSZ4')
+                if fil(1) == 0.375 && fil(2) == 1.5
+                    data = data(index-100:index+50);
+                elseif fil(1) == 0.1875 && fil(2) == 3.000
+                    data = data(index-20:index+range_val+100);
+                end
             else
                 data = data(index-range_val:index+range_val);
+                numel(data)
                 pasta = 'dessert'
             end
         else
@@ -188,7 +186,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         
         
         numel(data);
-        if strcmp(name, 'KTSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ1') || strcmp(name, 'SSSZ3')
+        if strcmp(name, 'KTSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ3') || strcmp(name, 'SSSZ1')
             [m, I] = nanmax(data);
         else
             [m, I] = nanmin(data);
@@ -196,23 +194,30 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         
         if strcmp(name, 'KTSZ4')
             if fil(1) == 0.375 && fil(2) == 1.5
-                time_value = dnum(I+(index-100));
+                time_value = dnum(I+(index-100)-1);
+                I_fullData = I+(index-100)-1;
             elseif fil(1) == 0.1875 && fil(2) == 3.000
                 time_value = dnum(I+(index-20));
+                I_fullData = I+(index-20)-1;
             else
                 time_value = dnum(I+(index-range_val));
+                I_fullData = I+(index-ranve_val)-1;
             end
         elseif strcmp(name, 'SSSZ2') && fil(1) == 0.1875 && fil(2) == 3.000 && wavnum==1
             time_value = dnum(I+(index+20));
+            I_fullData = I+(index+20)-1;
         elseif strcmp(name, 'SSSZ3') && ((fil(1) == 0.375 && fil(2) == 1.500) || (fil(1) == 0.1875 && fil(2) == 3.000) || (fil(1)==0.7500 && fil(2)==1.500) || (fil(1)==0.375 && fil(2)==0.7500) || (fil(1)==0.1875 && fil(2)==0.7500) || (fil(1)==0.7500 && fil(2)==3.000)) && (wavnum==24 ||(fil(1)==0.1875 && fil(2)==0.75 && wavnum==2))
             if fil(1)==0.1875 && fil(2)==0.75 && wavnum==2
                 time_value = dnum(I+(index+10));
+                I_fullData = I+(index+10)-1;
             else
                 time_value = dnum(I+(index+50));
+                I_fullData = I+(index+50)-1;
             end
             
         elseif strcmp(name, 'SSSZ3') && fil(1)==0.375 && fil(2)==1.5 && wavnum==5
             time_value = dnum(I+(index));
+            I_fullData = I+(index)-1;
         else
             wavnum
             time_value = dnum(I+(index-range_val));
@@ -236,7 +241,7 @@ time_value
         %line([get(w(wavnum), 'EX_ARR_TIME'), get(w(wavnum), 'EX_ARR_TIME')], [yl(1), yl(2)], 'Color', 'k');
         %hold on
         line([time_value, time_value], [yl(1), yl(2)], 'Color', 'k', 'LineWidth', 2);
-         line([time_values(1), time_values(1)], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
+         line([index, index], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value1, time_value1], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value3, time_value3], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value4, time_value4], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
