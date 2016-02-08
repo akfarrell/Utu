@@ -1,9 +1,3 @@
-norm_ems_SSSZ1 = norm_ems;
-rev_n_ems_SSSZ1 = rev_n_ems;
-sta_SSSZ1 = sta;
-
-
-
 %Creates cell arrays with visualization of data from text files. Bam.
 clc
 siteStruct = loadSiteTable('/raid/data/antelope/databases/PLUTONS/dbmerged'); %load in site table to compare
@@ -11,7 +5,10 @@ siteSta = siteStruct.sta;
 siteSta = siteSta(9:numel(siteSta)); %remove Lazufre stations
 siteSta = sort(siteSta);
 %%
-eqs = {'JSZ4', 'KTSZ2'};
+%eqs = {'SSSZ1', 'SSSZ2', 'SSSZ3', 'KTSZ1', 'KTSZ2', 'KTSZ3', 'JSZ1',
+%'JSZ3', 'JSZ4'}; % for norm 9
+%eqs = {'KTSZ2', 'JSZ4', 'SSSZ1'}; % for norm 3
+eqs = {'SSSZ1', 'SSSZ2', 'SSSZ3', 'KTSZ1', 'KTSZ2', 'KTSZ3', 'JSZ1', 'JSZ3', 'JSZ4'};
 for i = 1:numel(eqs)
     dirName = fullfile(eqs{i},'text')
     cd(dirName)
@@ -31,7 +28,6 @@ cellyN = cell(1+numel(siteSta), 4); %make cell array
 cellyN(2:numel(siteSta)+1,1) = siteSta;
 mynames = fieldnames(t);
 cellyN(1,2:numel(mynames)+1) = mynames;
-cellyN{1,4} = 'SSSZ1';
 cellyR = cellyN;
 %%
 scale_factor = 150;
@@ -59,19 +55,6 @@ for k = 1:numel(siteSta)
     end
 end
 
-%-------- Add SSSZ1 --------------%
-for k = 1:numel(siteSta)
-    for i = 1:numel(sta_SSSZ1)
-        if strcmp(sta_SSSZ1{i}, siteSta{k})
-            rev_n_ems_SSSZ1 = rev_n_ems_SSSZ1+0.01;
-            rev_n_ems_SSSZ1 = rev_n_ems_SSSZ1/max(rev_n_ems_SSSZ1);
-            cellyN{k+1,4} = norm_ems_SSSZ1(i)*scale_factor;
-            cellyR{k+1,4} = rev_n_ems_SSSZ1(i)*scale_factor;
-            matN(k,3) = norm_ems_SSSZ1(i)*scale_factor;
-            matR(k,3) = rev_n_ems_SSSZ1(i)*scale_factor;
-        end
-    end
-end
 
 cellyN
 cellyR
@@ -88,8 +71,8 @@ end
 
 sumR = sum(matR,2);
 sumN = sum(matN,2);
-meanR = sumR./c
-meanN = sumN./c
+meanR = sumR'./c
+meanN = sumN'./c
 
 %%
 % ------------ Plotting ------------%

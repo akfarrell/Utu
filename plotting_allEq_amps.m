@@ -22,7 +22,9 @@ end
 if exist('num_averaged', 'var')
     num_vals = 1:max(num_averaged);
 end
-colors = {'k', 'm', 'c', 'g', 'b', 'r', 'y'}; %need to add more when I have more events
+grey = rgb('Grey');
+thistle = rgb('Thistle');
+colors = {'k', 'm', 'c', 'g', 'b', 'r', 'y', grey, thistle}; %need to add more when I have more events
 
 % ----- Make Plot ------- %            
 borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
@@ -39,7 +41,7 @@ for i = 1:numel(sta_name)
         if exist('num_averaged', 'var')
             for count = 1:max(num_averaged)
                 if num_averaged(i) == num_vals(count)
-                    scatterm(lat_sta(i), lon_sta(i), plot_variable(i), colors{count}, 'filled')
+                    textm(lat_sta(i), lon_sta(i)+0.02, num2str(num_averaged(i)))
                 end
             end
         end
