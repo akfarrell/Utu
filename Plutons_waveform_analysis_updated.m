@@ -15,7 +15,7 @@ addpath('/raid/apps/src/gismotools/GISMO')
 startup_GISMO
 
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 12;
+earthquake_number = 3;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 utu_lat = -22.27;
@@ -422,20 +422,6 @@ elev = get(w_clean_sort, 'ELEV')*1000; %elevation in m
 [dist2, az_eq_volc] = distance(eq(earthquake_number).lat, eq(earthquake_number).lon, utu_lat, utu_lon);
 
 % ----Calc line of intersection of planar wave with surface at closest station
-% if earthquake_number == 9
-%     lat_ref = lat_sta(1);
-%     lon_ref = lon_sta(1);
-%     elev_ref = elev(1);
-% elseif earthquake_number == 3
-%     lat_ref = lat_sta(1);
-%     lon_ref = lon_sta(1);
-%     elev_ref = elev(1);
-% elseif earthquake_number == 10 %%%%%%%%%CHANGE!
-%     lat_ref = lat_sta(1);
-%     lon_ref = lon_sta(1);
-%     elev_ref = elev(1);
-% end
-
 lat_ref = lat_sta(1);
 lon_ref = lon_sta(1);
 elev_ref = elev(1);
@@ -499,7 +485,7 @@ if earthquake_number >=6 && earthquake_number<=9
 elseif earthquake_number >=2 && earthquake_number<=5
     third_point_x = x_of_sta(1)+diff_on_line*(cosd(270-az_volc_eq));
     third_point_y = y_of_sta(1)+diff_on_line*(sind(270-az_volc_eq));
-elseif earthquake_number >=10 && earthquake_number<=14 %%%CHANGE!
+elseif earthquake_number >=10 && earthquake_number<=14
     third_point_x = x_of_sta(1)+diff_on_line*(sind(90-(270-az_volc_eq)));
     third_point_y = y_of_sta(1)-diff_on_line*(sind(90-(270-az_volc_eq)));
 end
@@ -508,7 +494,7 @@ end
 [lat_2_vals, lon_2_vals] = utm2ll(x_2_vals, y_2_vals, -19); %convert this third point from UTM to lat lon
 [lat_point_on_line, lon_point_on_line] = utm2ll(x_point_on_line, y_point_on_line, -19); %convert points on line to lat lon
 
-
+% -------- Figure of wavefront line ----------- %
 h = figure;
 latlim = [min(min(lat_2_vals),min(lat_sta))-0.15 max(max(lat_2_vals),max(lat_sta))+0.15]; %[southern_limit northern_limit] 
 lonlim = [min(min(lon_2_vals),min(lon_sta))-0.15 max(max(lon_2_vals),max(lon_sta))+0.15]; %[western_limit eastern_limit]
@@ -575,11 +561,11 @@ if strcmp(eq(earthquake_number).name, 'JSZ4')
     Distance_corr = Distance - Distance(3);
 elseif strcmp(eq(earthquake_number).name, 'KTSZ2')
     Distance_corr = Distance - Distance(3);
-elseif strcmp(eq(earthquake_number).name, 'SSSZ1') %%%%%%%%%%CHANGE!!!
+elseif strcmp(eq(earthquake_number).name, 'SSSZ1')
     Distance_corr = Distance - Distance(3);
 end
 
-velocity = 8800; %velocity between -6 km and 15 km, in m/s
+velocity = 4100; %velocity between -6 km and 15 km, in m/s
 travel_time_relativeToFirstStation = derp/velocity;
 
 delay = time_vals_ref - travel_time_relativeToFirstStation;
@@ -598,6 +584,7 @@ sta_s.map_dist = map_dist;
 sta_s.derp = derp;
 sta_s.aoi = eq(earthquake_number).aoi;
 sta_s.time_vals_ref = time_vals_ref;
+sta_s.distance_from_plane = Distance;
 
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/text', eq(earthquake_number).name);
 filename2 = sprintf('%s_output_diffFreq_%1.4f_%1.4f.txt',eq(earthquake_number).name,fil(1),fil(2));
@@ -608,6 +595,8 @@ end
 st = fclose('all');
 
 %%
+delay2 = vel_time_calc(sta_s);
+delay_vals = delay;
 
 g = figure;
 set(g, 'Position', [1000 1000 1000 1000])
@@ -617,13 +606,13 @@ for p = 1:numel(ind_var)
     dep_var(p) = ind_var(p);
 end
 %plot(ind_var, dep_var, 'k')
-scatter(derp, delay, 'k')
+scatter(derp, delay_vals, 'k')
 %scatter(Distance_corr, delay_corrected(1,:), 'k')
 hold on
 %scatter(Distance_corr, delay_corrected(2,:), 'm')
 %scatter(Distance_corr, delay_corrected(3,:))
 %plot(ind_var, zeroes, 'k-.')
-text(derp+30, delay, sta);
+text(derp+30, delay_vals, sta);
 xlabel('Distance (m)')
 ylabel('Time Values with Reference to Closest Station (s)')
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
@@ -636,9 +625,9 @@ r = figure;
 set(r, 'Position', [1000 1000 1000 1000])
 zeroes = linspace(0,0,10);
 hold on
-scatter(delay, Q, 'k')
+scatter(delay_vals, Q, 'k')
 %scatter(delay_corrected(1,:), Q, 'k')
-text(delay+0.008, Q, sta);
+text(delay_vals+0.008, Q, sta);
 hold on
 %scatter(delay_corrected(2,:), Q, 'm')
 %scatter(delay_corrected(3,:), Q)
@@ -650,6 +639,7 @@ filename_wPath = fullfile(directory,filename);
 hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
 %%
+
 
 %partial_melt_percent = partial_melt_revised(delay2, eq(earthquake_number).aoi, 1, 20);
 
