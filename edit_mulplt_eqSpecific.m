@@ -1,4 +1,4 @@
-function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, alignWaveforms, absMax, absMin, name, fil,tshift, id)
+function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, alignWaveforms, absMax, absMin, name, fil,tshift, id, delay2)
 %added last input for eq_noSwaves to tell difference between split-up
 %waveform objects
 %MULPLT Plot multiple waveform objects in a figure. is inspired by the 
@@ -241,7 +241,9 @@ time_value
         %line([get(w(wavnum), 'EX_ARR_TIME'), get(w(wavnum), 'EX_ARR_TIME')], [yl(1), yl(2)], 'Color', 'k');
         %hold on
         line([time_value, time_value], [yl(1), yl(2)], 'Color', 'k', 'LineWidth', 2);
-         line([index, index], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
+        if exist('delay2', 'var')
+            line([time_value-(delay2(wavnum)/SECSPERDAY), time_value-(delay2(wavnum)/SECSPERDAY)], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
+        end
 %         line([time_value1, time_value1], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value3, time_value3], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value4, time_value4], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
@@ -274,9 +276,11 @@ time_value
 %         end
 %     end
 xlabel('Time');
-
-
+if exist('delay2', 'var')
+    filename = sprintf('%s_%s_waveforms_%1.4f_%1.4f_delay.png',name,id,fil(1),fil(2));
+else
+    filename = sprintf('%s_%s_waveforms_%1.4f_%1.4f.png',name,id,fil(1),fil(2));
+end
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
-filename = sprintf('%s_%s_waveforms_%1.4f_%1.4f.png',name,id,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
