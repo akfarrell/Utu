@@ -21,7 +21,7 @@ function [index_values, time_values, m_values] = amp_calc(w, index_values, range
         return
     end
     
-    w_raw = waveform(ds, scnl, index
+    w_raw = waveform(ds, scnl, index)
     index_values = [];
     time_values = [];
     m_values = [];
@@ -64,5 +64,4 @@ function [index_values, time_values, m_values] = amp_calc(w, index_values, range
         time_values(wavnum) = time_value;
         m_values(wavnum) = m;
         clear(w)
-    end
     end

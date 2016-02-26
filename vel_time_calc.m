@@ -1,4 +1,4 @@
-%function delay2 = vel_time_calc(sta_s)
+function delay2 = vel_time_calc(sta_s)
 
 % ----------- load in velocity structure --------------
 vel_s = load('Heather_vel_things/3D_1.75_Utur_0.1km.mat') %structure of velocities

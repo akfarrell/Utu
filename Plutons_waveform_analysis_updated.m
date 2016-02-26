@@ -127,7 +127,6 @@ for i=1:len
             w_clean(i) = addfield(w_clean(i), 'LAT', staStruct(i).lat);
             w_clean(i) = addfield(w_clean(i), 'LON', staStruct(i).lon);
             w_clean(i) = addfield(w_clean(i), 'DISTANCE', distance(eq(earthquake_number).lat, eq(earthquake_number).lon, siteStruct.lat(k), siteStruct.lon(k)) );
-            w_clean(i) = addfield(w_clean(i), 'EX_ARR_TIME', (eq(earthquake_number).evtime + times(1)/SECS2DAY)+((((staStruct(i).elev-minEl)/cosd(eq(earthquake_number).aoi)))*(4.1/SECS2DAY))); %adding in the travel time from sea level to the station elevation using AOI
         end
     end
 end
@@ -143,17 +142,7 @@ end
 
 %Create time lag values from each station relative to the one closest to
 %the earthquake
-ex_arr_time = [get(w_clean_sort, 'EX_ARR_TIME')];
 
-tlag = [];
-for values = 1:numel(ex_arr_time)
-    if values == 1
-        seclag = 0;
-    else
-        seclag = (ex_arr_time(values)-ex_arr_time(1))*SECS2DAY;
-    end
-    tlag(values) = seclag;
-end
 
 %%
 % figure(3)
@@ -303,9 +292,79 @@ end
 [norm_ems, rev_n_ems] = amp_comp(m_values);
 
 %%
-[P_az, P_inc] = directionality(eq(earthquake_number), earthquake_number, index_values, fil, order)
+
+close all
+nwaveforms = numel(w_clean_sort);
+for i = 1:nwaveforms
+    m = m_values(i);
+    Fn = get(w_clean_sort(i),'NYQ'); %from https://code.google.com/p/gismotools/source/browse/trunk/GISMO/contributed/fft_tools/%2Bwf_fft/compute.m?r=321
+    stn = get(w_clean_sort(i),'station');
+    x = get(w_clean_sort(i),'data');
+    if strcmp(eq(earthquake_number).name, 'JSZ1')
+        if fil(1)==0.1875 && fil(2)==0.75
+            if strcmp(stn, 'PLAR')
+                x = x(index_values(i)-200:index_values(i)+197);
+            end
+        end
+    else
+        x = x(index_values(i)-200:index_values(i)+200);
+    end
+    NFFT=2.^(ceil(log(length(x))/log(2)));  % Next highest power of 2
+    FFTX=fft(x,NFFT);                       % Take fft, padding with zeros.
+    NumUniquePts = ceil((NFFT+1)/2);
+    FFTX=FFTX(1:NumUniquePts);              % throw out neg frequencies
+    MX=abs(FFTX);                           % Take magnitude of X
+    MX=MX*2;                                % Multiply by 2 
+    MX=MX/length(x);                        
+    %PX=phase(FFTX);                           % Take magnitude of X
+    f=(0:NumUniquePts-1)*2/NFFT;            
+    f=f*Fn;
+    figure
+    plot(f,MX)
+    hold on
+    xlim([0 5])
+    title(sprintf('%s',stn))
+    w_clean_sort(i) = addfield(w_clean_sort(i),'FFT_FREQ',f');
+    w_clean_sort(i) = addfield(w_clean_sort(i),'FFT_AMP',MX);
+    w_clean_sort(i) = addfield(w_clean_sort(i), 'AMP_ABS', abs(m));
+    %w(i) = addfield(w(i),'FFT_PHASE',PX);
+    a = find(MX == max(MX));
+    line([f(a), f(a)], [min(MX), max(MX)], 'Color', 'k', 'LineStyle', ':', 'LineWidth', 2);
+    w_clean_sort(i) = addfield(w_clean_sort(i),'FFT_DOM',f(a));
+end;
+
+sig_freq = [get(w_clean_sort, 'FFT_DOM')];
+sta = [get(w_clean_sort, 'station')];
+
+[stas,Q] = q_calc(w_clean_sort, 5.15, 20, sig_freq);
+%%
+[P_az, P_inc] = directionality(eq(earthquake_number), earthquake_number, index_values, fil, sig_freq, order)
 %time_values in dnum
 %%
+% -------- Defining AOI that I'm using ----------
+% ---------Comment out one or the other ----------
+aoi = 10.5%P_inc
+%aoi = eq(earthquake_number).aoi
+
+for i=1:len
+    for k = 1:numel(siteSta) 
+        if strcmp(stations{i}, siteSta{k})
+            w_clean_sort(i) = addfield(w_clean_sort(i), 'EX_ARR_TIME', (eq(earthquake_number).evtime + times(1)/SECS2DAY)+((((staStruct(i).elev-minEl)/cosd(aoi)))*(4.1/SECS2DAY))); %adding in the travel time from sea level to the station elevation using AOI
+        end
+    end
+end
+
+ex_arr_time = [get(w_clean_sort, 'EX_ARR_TIME')];
+
+tlag = [];
+for values = 1:numel(ex_arr_time)
+    if values == 1
+        seclag = 0;
+    else
+        seclag = (ex_arr_time(values)-ex_arr_time(1))*SECS2DAY;
+    end
+    tlag(values) = seclag;
+end
 
 time_vals_ref = [];
 if earthquake_number == 9
@@ -361,50 +420,7 @@ slowness = tlag-time_vals_ref;
 
 %%
 %[N,M] = size(w_clean_sort);
-close all
-nwaveforms = numel(w_clean_sort);
-for i = 1:nwaveforms
-    m = m_values(i);
-    Fn = get(w_clean_sort(i),'NYQ'); %from https://code.google.com/p/gismotools/source/browse/trunk/GISMO/contributed/fft_tools/%2Bwf_fft/compute.m?r=321
-    stn = get(w_clean_sort(i),'station');
-    x = get(w_clean_sort(i),'data');
-    if strcmp(eq(earthquake_number).name, 'JSZ1')
-        if fil(1)==0.1875 && fil(2)==0.75
-            if strcmp(stn, 'PLAR')
-                x = x(index_values(i)-200:index_values(i)+197);
-            end
-        end
-    else
-        x = x(index_values(i)-200:index_values(i)+200);
-    end
-    NFFT=2.^(ceil(log(length(x))/log(2)));  % Next highest power of 2
-    FFTX=fft(x,NFFT);                       % Take fft, padding with zeros.
-    NumUniquePts = ceil((NFFT+1)/2);
-    FFTX=FFTX(1:NumUniquePts);              % throw out neg frequencies
-    MX=abs(FFTX);                           % Take magnitude of X
-    MX=MX*2;                                % Multiply by 2 
-    MX=MX/length(x);                        
-    %PX=phase(FFTX);                           % Take magnitude of X
-    f=(0:NumUniquePts-1)*2/NFFT;            
-    f=f*Fn;
-    figure
-    plot(f,MX)
-    hold on
-    xlim([0 5])
-    title(sprintf('%s',stn))
-    w_clean_sort(i) = addfield(w_clean_sort(i),'FFT_FREQ',f');
-    w_clean_sort(i) = addfield(w_clean_sort(i),'FFT_AMP',MX);
-    w_clean_sort(i) = addfield(w_clean_sort(i), 'AMP_ABS', abs(m));
-    %w(i) = addfield(w(i),'FFT_PHASE',PX);
-    a = find(MX == max(MX));
-    line([f(a), f(a)], [min(MX), max(MX)], 'Color', 'k', 'LineStyle', ':', 'LineWidth', 2);
-    w_clean_sort(i) = addfield(w_clean_sort(i),'FFT_DOM',f(a));
-end;
 
-sig_freq = [get(w_clean_sort, 'FFT_DOM')];
-sta = [get(w_clean_sort, 'station')];
-
-[stas,Q] = q_calc(w_clean_sort, 5.15, 20, sig_freq);
 
 
 
@@ -450,9 +466,9 @@ end
 
 for j = 1:numel(sta)
      wave_to_sta_dist(j) = (abs(A*(x_of_sta(j))+B*(y_of_sta(j))+C)/sqrt(A^2 + B^2)); %distance map view from point to line
-     inc_ang = eq(earthquake_number).aoi-atand((elev(1)-elev(j))/wave_to_sta_dist(j));
+     inc_ang = aoi-atand((elev(1)-elev(j))/wave_to_sta_dist(j));
      if isnan(inc_ang)
-         inc_ang = eq(earthquake_number).aoi;
+         inc_ang = aoi;
      end
      if earthquake_number >=6 && earthquake_number<=9
          y_vals = sind(az_volc_eq-270)*wave_to_sta_dist(j);
@@ -478,7 +494,7 @@ end
 % ^above to check that the slope of points on line = slope of line
 
 change_in_depth = 1000; %change in depth along plane, in m
-diff_on_line = change_in_depth/tand(eq(earthquake_number).aoi); %hypotenuse of map view 
+diff_on_line = change_in_depth/tand(aoi); %hypotenuse of map view 
 if earthquake_number >=6 && earthquake_number<=9
     third_point_x = x_of_sta(1)+diff_on_line*(cosd(az_volc_eq-270));
     third_point_y = y_of_sta(1)-diff_on_line*(sind(az_volc_eq-270));
@@ -582,26 +598,55 @@ sta_s.y_of_sta = y_of_sta;
 sta_s.elev = elev;
 sta_s.map_dist = map_dist;
 sta_s.derp = derp;
-sta_s.aoi = eq(earthquake_number).aoi;
+sta_s.aoi = aoi;
 sta_s.time_vals_ref = time_vals_ref;
 sta_s.distance_from_plane = Distance;
+
+delay2 = vel_time_calc(sta_s);
+delay_vals = delay2;
 
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/text', eq(earthquake_number).name);
 filename2 = sprintf('%s_output_diffFreq_%1.4f_%1.4f.txt',eq(earthquake_number).name,fil(1),fil(2));
 dif=fopen(fullfile(directory,filename2), 'w');
 for i=1:length(stas)
-    fprintf(dif,'%s %10.5f %10.3f %10.4f %10.4f %10.4f\n',stas(i,:),Q(i),sig_freq(i), delay(i), norm_ems(i), rev_n_ems(i));
+    fprintf(dif,'%s %10.5f %10.3f %10.4f %10.4f %10.4f\n',stas(i,:),Q(i),sig_freq(i), delay2(i), norm_ems(i), rev_n_ems(i));
 end
 st = fclose('all');
 
 %%
+
 if numel(tshift_time_days) == numel(w_clean_sort)
     edit_mulplt_eqSpecific(w_clean_sort, 0, absMax, absMin, eq(earthquake_number).name, fil, tshift_time_days, 'eq', delay2);
 end
 
 %%
-delay2 = vel_time_calc(sta_s);
-delay_vals = delay;
+bleh = sort(Q);
+if bleh(1)==-Inf
+    min_Q = bleh(2);
+    max_Q = bleh(numel(bleh));
+    mean_Q = mean(bleh(2:end));
+else
+    min_Q = bleh(1);
+    max_Q = bleh(numel(bleh)-1);
+    mean_Q = mean(bleh(1:numel(bleh)-1));
+end
+if find(Q == -Inf)
+    inf_val = find(Q == -Inf);
+elseif find(Q == Inf)
+    inf_val = find(Q == Inf);
+end
+slop = Q;
+slop(inf_val) = max_Q+2;
+
+mean_delay = mean(delay_vals);
+mean_distance = mean(derp);
+m_Q = linspace(mean_Q,mean_Q, 100);
+m_dist = linspace(mean_distance,mean_distance,100);
+m_del = linspace(mean_delay,mean_delay,100);
+
+dist_vals = linspace(min(derp), max(derp), 100);
+Q_vals = linspace(min_Q, max_Q, 100);
+delayx = linspace(min(delay_vals),max(delay_vals),100);
 
 g = figure;
 set(g, 'Position', [1000 1000 1000 1000])
@@ -614,6 +659,8 @@ end
 scatter(derp, delay_vals, 'k')
 %scatter(Distance_corr, delay_corrected(1,:), 'k')
 hold on
+plot(m_dist,delayx,'b')
+plot(dist_vals,m_del,'b')
 %scatter(Distance_corr, delay_corrected(2,:), 'm')
 %scatter(Distance_corr, delay_corrected(3,:))
 %plot(ind_var, zeroes, 'k-.')
@@ -621,7 +668,7 @@ text(derp+30, delay_vals, sta);
 xlabel('Distance (m)')
 ylabel('Time Values with Reference to Closest Station (s)')
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
-filename = sprintf('%s_timeVsDist_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename = sprintf('%s_timeVsDist_grid_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(g, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
@@ -631,22 +678,28 @@ set(r, 'Position', [1000 1000 1000 1000])
 zeroes = linspace(0,0,10);
 hold on
 scatter(delay_vals, Q, 'k')
+scatter(delay_vals(inf_val), slop(inf_val))
 %scatter(delay_corrected(1,:), Q, 'k')
 text(delay_vals+0.008, Q, sta);
+text(delay_vals(inf_val)+0.008, slop(inf_val), sta(inf_val))
 hold on
+plot(delayx, m_Q,'b')
+plot(m_del, Q_vals,'b')
 %scatter(delay_corrected(2,:), Q, 'm')
 %scatter(delay_corrected(3,:), Q)
 xlabel('Time Delay (s)')
 ylabel('Apparent Q')
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
-filename = sprintf('%s_QvsDelay_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename = sprintf('%s_QvsDelay_grid_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
 %%
+delay2
+min(delay2)
+max(delay2)
 
-
-%partial_melt_percent = partial_melt_revised(delay2, eq(earthquake_number).aoi, 1, 20);
+%partial_melt_percent = partial_melt_revised(delay2, aoi, 1, 20);
 
 
 

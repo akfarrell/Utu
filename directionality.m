@@ -1,4 +1,4 @@
-function [P_az, P_inc] = directionality(eq_info, earthquake_number, index_valuez, fil, order)
+function [P_az, P_inc] = directionality(eq_info, earthquake_number, index_valuez, fil, sig_freq, order)
 close all;
 
 %eq_info = eq(earthquake_number)
@@ -19,6 +19,9 @@ scnl = scnlobject('*', '*', 'PL')
 
 utu_lat = -22.27;
 utu_lon = -67.18;
+mean_val = mean(sig_freq);
+scaling_nums = [60 24];
+wind = [floor(scaling_nums(1)/mean_val) floor(scaling_nums(2)/mean_val)]
 
 w_raw = waveform(ds, scnl, eq_info.snum, eq_info.enum);
 
@@ -96,6 +99,7 @@ for wavnum = 1:3:numel(w_clean)
         dataZ=get(w_clean_sort(wavnum+2),'data');
         
         
+        %data_range = [index(wavnum)-wind(1):1:index(wavnum)+wind(2)];
         data_range = [index(wavnum)-150:1:index(wavnum)+60];
         N = numel(data_range);
         freqE = get(w_clean_sort(wavnum), 'freq');
@@ -163,6 +167,6 @@ u1 = eig_vec(:,3);
 u2 = eig_vec(:,2);
 u3 = eig_vec(:,1);
 
-P_az = atand((u1(2)*sign(u1(1)))/(u1(3)*sign(u1(1))))
-P_inc = acosd(abs(u1(1)))
+P_az = atand((u1(2)*sign(u1(1)))/(u1(3)*sign(u1(1))));
+P_inc = acosd(abs(u1(1)));
 end

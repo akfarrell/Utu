@@ -236,6 +236,10 @@ time_value
         index_values(wavnum) = I_fullData;
         time_values(wavnum) = time_value;
         m_values(wavnum) = m;
+        time_value1 = dnum(index_values(wavnum)-110);
+        time_value2 = dnum(index_values(wavnum)+90);
+        time_value3 = dnum(index_values(wavnum)-150);
+        time_value4 = dnum(index_values(wavnum)+60);
         hold on
         yl=ylim;
         %line([get(w(wavnum), 'EX_ARR_TIME'), get(w(wavnum), 'EX_ARR_TIME')], [yl(1), yl(2)], 'Color', 'k');
@@ -244,9 +248,10 @@ time_value
         if exist('delay2', 'var')
             line([time_value-(delay2(wavnum)/SECSPERDAY), time_value-(delay2(wavnum)/SECSPERDAY)], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
         end
-%         line([time_value1, time_value1], [yl(1), yl(2)], 'Color', 'r', 'LineStyle', ':', 'LineWidth', 4);
-%         line([time_value3, time_value3], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
-%         line([time_value4, time_value4], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
+        %line([time_value1, time_value1], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
+        %line([time_value2, time_value2], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
+         %line([time_value3, time_value3], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
+         %line([time_value4, time_value4], [yl(1), yl(2)], 'Color', 'm', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value5, time_value5], [yl(1), yl(2)], 'Color', 'g', 'LineStyle', ':', 'LineWidth', 4);
 %         line([time_value6, time_value6], [yl(1), yl(2)], 'Color', 'g', 'LineStyle', ':', 'LineWidth', 4);
         %data_construct = [dnum; data]'
