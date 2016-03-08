@@ -1,4 +1,4 @@
-function tshift = cross_corr(eq, fil)
+function [tshift,C] = cross_corr(eq, fil)
 %
 % Abbreviated version of run_getwaveform.m and getwaveform_input.m
 %
@@ -147,6 +147,7 @@ plotw_rs(wfilt,0,iabs,[],tmark,[],[],pmax,iintp,inorm,tlims,2,azcen,iunit,imap);
 % see nenana_trigger.m for example
 get(wfilt,'station')
 C = correlation(wfilt);
+%maxlag =[2 7];
 C = xcorr(C);
 C
 lagtimes = get(C,'lag');
@@ -246,6 +247,8 @@ elseif strcmp(name, 'SSSZ4')
     tshift(11)=tshift(11)-3;
     tshift(13)=tshift(13)+1;
 end
+max(tshift)
+min(tshift)
 % trig = get(C, 'trig');
 % trig_offset=[];
 % trig
@@ -260,9 +263,9 @@ end
 %w_clean(i) = addfield(w_clean(i), 'EX_ARR_TIME', (eq(earthquake_number).evtime + times(1)/SECS2DAY));
 %plot(C);
 %figure 5
-plot(C,'lag'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,'station'))
+plot(C,'lag'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,'station')),xlabel('Station', 'FontSize', 12), ylabel('Station', 'FontSize', 12)
 %figure 6
-plot(C,'corr'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,'station'))
+plot(C,'corr'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,'station'), 'FontSize', 8),xlabel('Station', 'FontSize', 12), ylabel('Station', 'FontSize', 12)
 %figure 7
 plotw_rs(wfilt,isort,iabs,tshift,tmark,[],[],pmax,iintp,inorm,tlims,2,azcen,iunit,imap);
 

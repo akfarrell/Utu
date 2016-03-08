@@ -64,7 +64,8 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 
 %w_clean = waveform_clean(w_raw);
 fil=[0.375 1.5];
-tshift = cross_corr(eq(earthquake_number), fil);
+[tshift, C] = cross_corr(eq(earthquake_number), fil);
+corr_vals = get(C, 'corr');
 
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
 
@@ -89,7 +90,6 @@ end
 
 %get information for these waveforms
 stations = [get(w_clean, 'station')];
-stations;
 
 
 
@@ -640,12 +640,15 @@ slop(inf_val) = max_Q+2;
 
 mean_delay = mean(delay_vals);
 mean_distance = mean(derp);
-m_Q = linspace(mean_Q,mean_Q, 100);
+mean_amp = mean(norm_ems);
+%m_Q = linspace(mean_Q,mean_Q, 100);
+m_Amp = linspace(mean_amp, mean_amp, 100);
 m_dist = linspace(mean_distance,mean_distance,100);
 m_del = linspace(mean_delay,mean_delay,100);
 
 dist_vals = linspace(min(derp), max(derp), 100);
 Q_vals = linspace(min_Q, max_Q, 100);
+Amp_vals = linspace(min(norm_ems), max(norm_ems), 100);
 delayx = linspace(min(delay_vals),max(delay_vals),100);
 
 g = figure;
@@ -677,20 +680,21 @@ r = figure;
 set(r, 'Position', [1000 1000 1000 1000])
 zeroes = linspace(0,0,10);
 hold on
-scatter(delay_vals, Q, 'k')
-scatter(delay_vals(inf_val), slop(inf_val))
+scatter(delay_vals, norm_ems, 'k')
+%scatter(delay_vals(inf_val), slop(inf_val))
 %scatter(delay_corrected(1,:), Q, 'k')
-text(delay_vals+0.008, Q, sta);
-text(delay_vals(inf_val)+0.008, slop(inf_val), sta(inf_val))
+text(delay_vals+0.008, norm_ems, sta);
+%text(delay_vals(inf_val)+0.008, slop(inf_val), sta(inf_val))
 hold on
-plot(delayx, m_Q,'b')
-plot(m_del, Q_vals,'b')
+plot(delayx, m_Amp,'b')
+plot(m_del, Amp_vals,'b')
+ylim([min(norm_ems)-0.01 1.01]);
 %scatter(delay_corrected(2,:), Q, 'm')
 %scatter(delay_corrected(3,:), Q)
 xlabel('Time Delay (s)')
-ylabel('Apparent Q')
+ylabel('Normalized Amplitude')
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
-filename = sprintf('%s_QvsDelay_grid_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename = sprintf('%s_AmpvsDelay_grid_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
