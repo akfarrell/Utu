@@ -7,7 +7,7 @@ p_vels = 1000*vel_s.apvel; %p-wave velocity in m/s
 elevs = sta_s.elev; %elevations, positive. Sea level = 0, deeper => negative
 vel_deps_corr = (-vel_deps+3.5)*1000; %depths corrected for sea level, in m
 dist = sta_s.derp;
-
+%%
 for s = 1:numel(sta_s.map_dist)
     %dist = sta_s.map_dist(s); %maximum map distance from wave to sta, in m
     %depth = dist*0.5*sind(sta_s.aoi*2) %determine max depth, in m

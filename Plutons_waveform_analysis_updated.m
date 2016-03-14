@@ -619,6 +619,8 @@ if numel(tshift_time_days) == numel(w_clean_sort)
     edit_mulplt_eqSpecific(w_clean_sort, 0, absMax, absMin, eq(earthquake_number).name, fil, tshift_time_days, 'eq', delay2);
 end
 
+delay_corrected = delay2-min(delay2);
+
 %%
 bleh = sort(Q);
 if bleh(1)==-Inf
