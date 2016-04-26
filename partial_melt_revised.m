@@ -15,7 +15,7 @@
         %tolerance for closest velocity to match slowness
         
 %%   
-model_number = 1;
+model_number = 2; %--------You can change dis!!!!!-----------
 
 % ----- Determining average P velocity ------- %
 K = 45; %bulk modulus in GPa
@@ -45,14 +45,14 @@ delay = delay_corrected;
 %               4.37, 4.36, 4.35, 4.34, 4.33, 4.32, 4.31, 4.29, 4.28, 4.27...
 %               4.26, 4.25, 4.24, 4.23, 4.22, 4.20, 4.19, 4.18, 4.17, 4.16];
             
-Distances = 0:70;
+Distances = 0:90;
 Vp_solid = 5.27;
 if model_number == 1 %Using just the velocities of the UTU velocity model, in same 20-km space as Ward anomaly
     %thickness = 25.3; %thickness of partial melt body, in km
     %thickness = 10;
     %thickness = 1;
     thickness = 20;
-    tolerance = 0.006;
+    tolerance = 0.007;
     dist_in_magma = thickness/cosd(aoi); %distance ray travels through magma, in km
     delay_through_anomaly = delay + dist_in_magma/Vp_solid;%fastest_possible_time
     per_melt = [zeros(size(delay))];
@@ -99,4 +99,35 @@ elseif model_number == 2 %estimating thickness with given Vp
         end
     end
     thickness
+elseif model_number == 3 %Using Heather's depths
+    thickness = abs(-25-depths_at_stas); %need to run get_data_fig_surf.m first to get depths at stas!!!!
+    tolerance = 0.006;
+    dist_in_magma = thickness./cosd(aoi); %distance ray travels through magma, in km
+    %delay_through_anomaly = delay + dist_in_magma./Vp_solid;%fastest_possible_time
+    per_melt = [zeros(size(delay))];
+    for s = 1:numel(delay)
+        per_melt(s) = 111;
+        for k = 1:numel(Vp_average)
+            Vp_in = Vp_average(k);
+            travel_time(k) = dist_in_magma(s)/Vp_in;
+            travel_time;
+            delay_through_anomaly = delay(s) + dist_in_magma(s)/Vp_solid;%fastest_possible_time
+            delay_through_anomaly-tolerance;
+            del_val = find(travel_time(k)>(delay_through_anomaly-tolerance) & travel_time(k)<(delay_through_anomaly+tolerance));
+            if del_val~=0
+                per_melt(s) = k-1;
+            end
+            if k == numel(Vp_average)
+                if per_melt(s) == 111;
+                    if delay_through_anomaly > travel_time(1)
+                        per_melt(s) = 999;
+                    elseif delay_through_anomaly < travel_time(numel(Vp_average))
+                        per_melt(s) = -1;
+                    end
+                end
+            end
+        end
+    end
+    per_melt
+    
 end

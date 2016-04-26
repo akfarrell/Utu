@@ -179,6 +179,26 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
                 numel(data)
                 pasta = 'dessert'
             end
+        elseif strcmp(name, 'SSSZ5')
+            if wavnum == 11
+                range_val = -10;
+                data = data(index-range_val:index+range_val+70);
+            elseif wavnum == 3
+                data = data(index-range_val:index+range_val);
+            elseif wavnum == 9
+                range_val = 20;
+                data = data(index-range_val:index+50);
+            elseif wavnum == 20
+                range_val = 0;
+                data = data(index-range_val:index+130);
+            elseif wavnum == 18
+                range_val = -50;
+                data = data(index-range_val:index+150);
+            else
+                hu = 'bu'
+                range_val = 30;
+                data = data(index-range_val:index+range_val+70);
+            end
         else
             data = data(index-range_val:index+range_val);
             turkey = 'dinner'
@@ -186,7 +206,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
         
         
         numel(data);
-        if strcmp(name, 'KTSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ3') || strcmp(name, 'SSSZ1')
+        if strcmp(name, 'KTSZ3') || strcmp(name, 'JSZ4') || strcmp(name, 'SSSZ3') || strcmp(name, 'SSSZ1') || strcmp(name, 'SSSZ4') || strcmp(name, 'SSSZ5')
             [m, I] = nanmax(data);
         else
             [m, I] = nanmin(data);

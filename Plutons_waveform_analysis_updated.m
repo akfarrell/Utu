@@ -9,13 +9,15 @@ addpath('data_func_matTaup/')
 addpath('lldistkm/')
 addpath('latlonutm/Codes/matlab/')
 addpath('readhgt/')
+addpath('pathdist_v4')
+addpath('scalebar_v3/scalebar')
 NEWGISMODIR=fullfile('/raid/apps/matlab/toolbox/GISMO/startup_GISMO.m');
 rmpath(genpath(NEWGISMODIR))
 addpath('/raid/apps/src/gismotools/GISMO')
 startup_GISMO
 
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 3;
+earthquake_number = 8;
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 utu_lat = -22.27;
@@ -64,9 +66,10 @@ w_raw = waveform(ds, scnl, eq(earthquake_number).snum, eq(earthquake_number).enu
 
 %w_clean = waveform_clean(w_raw);
 fil=[0.375 1.5];
+
 [tshift, C] = cross_corr(eq(earthquake_number), fil);
 corr_vals = get(C, 'corr');
-
+%%
 w_clean = waveform_clean(w_raw, filterobject('b', fil, 2));
 
 if earthquake_number == 4
@@ -86,6 +89,8 @@ elseif earthquake_number == 11
     w_clean(6)=[]; %remove station PLQU - noise SSSZ2
 elseif earthquake_number == 12
     w_clean(23)=[]; %remove station PLTP - noise SSSZ3
+elseif earthquake_number == 14
+    w_clean(2) = []; %remove station PLO7 - awful SSSZ5
 end
 
 %get information for these waveforms
@@ -272,6 +277,18 @@ elseif strcmp(eq(earthquake_number).name, 'SSSZ3')
         start_time_ref = dnum(1); %start time of waveforms
         diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
     end
+elseif strcmp(eq(earthquake_number).name, 'SSSZ4')
+    data = data(1:600);
+    [ref_amp, ref_index] = nanmax(data);
+    time_value_ref = dnum(ref_index); %reference time of minimum of first station
+    start_time_ref = dnum(1); %start time of waveforms
+    diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
+elseif strcmp(eq(earthquake_number).name, 'SSSZ5')
+    data = data(1:425);
+    [ref_amp, ref_index] = nanmax(data);
+    time_value_ref = dnum(ref_index); %reference time of minimum of first station
+    start_time_ref = dnum(1); %start time of waveforms
+    diff_time_ref = time_value_ref - start_time_ref; %difference between start time of series and phase time
 end
 
 ref_index
@@ -343,8 +360,19 @@ sta = [get(w_clean_sort, 'station')];
 %%
 % -------- Defining AOI that I'm using ----------
 % ---------Comment out one or the other ----------
-aoi = 10.5%P_inc
-%aoi = eq(earthquake_number).aoi
+if earthquake_number == 3
+    aoi = 10.5%P_inc
+elseif earthquake_number == 10
+    aoi = 19
+elseif earthquake_number == 8
+    aoi = 4
+else
+    aoi = 19
+    %aoi = eq(earthquake_number).aoi
+    %aoi = P_inc
+    %aoi = 3.3
+end
+
 
 for i=1:len
     for k = 1:numel(siteSta) 
@@ -432,7 +460,7 @@ lat_sta = get(w_clean_sort, 'LAT');
 lon_sta = get(w_clean_sort, 'LON');
 elev = get(w_clean_sort, 'ELEV')*1000; %elevation in m
 [lon, lat] = meshgrid(topo_data.lon, topo_data.lat);
-%%
+
 
 [dist, az_volc_eq] = distance(utu_lat, utu_lon, eq(earthquake_number).lat, eq(earthquake_number).lon);
 [dist2, az_eq_volc] = distance(eq(earthquake_number).lat, eq(earthquake_number).lon, utu_lat, utu_lon);
@@ -442,7 +470,7 @@ lat_ref = lat_sta(1);
 lon_ref = lon_sta(1);
 elev_ref = elev(1);
 
-%%
+
 %x1 = lat_ref; y1 = lon_ref;
 [x1,y1,zone] = ll2utm(lat_ref, lon_ref);
 if earthquake_number >=6 && earthquake_number<=9
@@ -549,7 +577,7 @@ filename = sprintf('%s_wavefront_line_%1.4f_%1.4f.png',eq(earthquake_number).nam
 filename_wPath = fullfile(directory,filename);
 hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
-%%
+
 
 
 P1 = [x_of_sta(1),y_of_sta(1), elev(1)]; %first station coordinates (UTM) and elevation
@@ -572,7 +600,7 @@ for i = 1:numel(sta)
     P4 = [x_of_sta(i), y_of_sta(i), elev(i)];
     Distance(i) = (dot(nnorm, P4)+p);
 end
-%%
+
 if strcmp(eq(earthquake_number).name, 'JSZ4')
     Distance_corr = Distance - Distance(3);
 elseif strcmp(eq(earthquake_number).name, 'KTSZ2')
@@ -603,7 +631,7 @@ sta_s.time_vals_ref = time_vals_ref;
 sta_s.distance_from_plane = Distance;
 
 delay2 = vel_time_calc(sta_s);
-delay_vals = delay2;
+
 
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/text', eq(earthquake_number).name);
 filename2 = sprintf('%s_output_diffFreq_%1.4f_%1.4f.txt',eq(earthquake_number).name,fil(1),fil(2));
@@ -613,15 +641,16 @@ for i=1:length(stas)
 end
 st = fclose('all');
 
-%%
+
 
 if numel(tshift_time_days) == numel(w_clean_sort)
     edit_mulplt_eqSpecific(w_clean_sort, 0, absMax, absMin, eq(earthquake_number).name, fil, tshift_time_days, 'eq', delay2);
 end
 
-delay_corrected = delay2-min(delay2);
 
-%%
+delay_corrected = delay2-min(delay2);
+delay_vals = delay_corrected;
+
 bleh = sort(Q);
 if bleh(1)==-Inf
     min_Q = bleh(2);
@@ -639,14 +668,31 @@ elseif find(Q == Inf)
 end
 slop = Q;
 slop(inf_val) = max_Q+2;
-
+%%
 mean_delay = mean(delay_vals);
 mean_distance = mean(derp);
 mean_amp = mean(norm_ems);
+warning('on')
+if earthquake_number == 3
+    warning('Earthquake Mean Delay and Mean Amp Values Changed!')
+    mean_delay = mean_delay-0.05 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+    mean_amp = mean_amp-0.012 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+elseif earthquake_number == 13
+    warning('Earthquake Mean Delay and Mean Amp Values Changed!')
+    mean_delay = mean_delay-0.09 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+    mean_amp = mean_amp-0.015 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%% 
+elseif earthquake_number == 8
+    warning('Earthquake Mean Delay and Mean Amp Values Changed!')
+    mean_delay = mean_delay+0.01 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+    %mean_amp = mean_amp-0.015 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%% 
+end
+warning('off')
 %m_Q = linspace(mean_Q,mean_Q, 100);
 m_Amp = linspace(mean_amp, mean_amp, 100);
 m_dist = linspace(mean_distance,mean_distance,100);
 m_del = linspace(mean_delay,mean_delay,100);
+delay_size = delay_vals > mean_delay; %0 is smaller than mean, 1 is bigger
+amp_size = norm_ems > mean_amp; %0 is smaller than mean, 1 is bigger
 
 dist_vals = linspace(min(derp), max(derp), 100);
 Q_vals = linspace(min_Q, max_Q, 100);
@@ -680,32 +726,95 @@ hgexport(g, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
 r = figure;
 set(r, 'Position', [1000 1000 1000 1000])
-zeroes = linspace(0,0,10);
+set(gca, 'fontsize', 11);
 hold on
-scatter(delay_vals, norm_ems, 'k')
+for i = 1:numel(amp_size)
+    if delay_size(i) == 0 && amp_size(i) == 0
+        color = 'g';
+    elseif delay_size(i) == 0 && amp_size(i) == 1
+        color = 'b';
+    elseif delay_size(i) == 1 && amp_size(i) == 0
+        color = 'r';
+    elseif delay_size(i) == 1 && amp_size(i) == 1
+        color = 'k';
+    end
+    scatter(delay_vals(i), norm_ems(i), 140, color, 'f')
+end
 %scatter(delay_vals(inf_val), slop(inf_val))
 %scatter(delay_corrected(1,:), Q, 'k')
-text(delay_vals+0.008, norm_ems, sta);
+text(delay_vals+0.015, norm_ems-0.006, sta, 'FontSize', 12);
 %text(delay_vals(inf_val)+0.008, slop(inf_val), sta(inf_val))
 hold on
 plot(delayx, m_Amp,'b')
 plot(m_del, Amp_vals,'b')
-ylim([min(norm_ems)-0.01 1.01]);
+ylim([min(norm_ems)-0.03 1.02]);
+xlim([-0.02, max(delay_vals)+0.08]);
 %scatter(delay_corrected(2,:), Q, 'm')
 %scatter(delay_corrected(3,:), Q)
-xlabel('Time Delay (s)')
-ylabel('Normalized Amplitude')
+xlabel('Time Delay (s)', 'FontSize', 12)
+ylabel('Normalized Amplitude', 'FontSize', 12)
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
 filename = sprintf('%s_AmpvsDelay_grid_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
 hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
 
-%%
-delay2
-min(delay2)
-max(delay2)
 
-%partial_melt_percent = partial_melt_revised(delay2, aoi, 1, 20);
+
+h = figure;
+latlim = [-22.75 -21.75]; %[southern_limit northern_limit] 
+lonlim = [-67.75 -66.5]; %[western_limit eastern_limit]
+set(h, 'Position', [1000 1000 1000 1000])
+worldmap(latlim, lonlim);
+setm(gca, 'fontsize',11);
+borders = shaperead('BOL_adm0.shp', 'UseGeoCoords', true);
+arg_borders = shaperead('ARG_adm0.shp', 'UseGeoCoords', true);
+geoshow(borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+geoshow(arg_borders, 'DefaultEdgeColor', 'black', 'DefaultFaceColor', 'white');
+hold on
+if earthquake_number <= 9 && earthquake_number >= 6
+    northarrow('latitude', -22.7, 'longitude', -67.6, 'scaleratio', 1/20);
+else
+    northarrow('latitude', -21.9, 'longitude', -67.6, 'scaleratio', 1/20);
+end
+scalebar('location', 'se', 'FontSize', 11)
+for i = 1:numel(amp_size)
+    if delay_size(i) == 0 && amp_size(i) == 0
+        color = 'g';
+    elseif delay_size(i) == 0 && amp_size(i) == 1
+        color = 'b';
+    elseif delay_size(i) == 1 && amp_size(i) == 0
+        color = 'r';
+    elseif delay_size(i) == 1 && amp_size(i) == 1
+        color = 'k';
+    end
+    scatterm(lat_sta(i), lon_sta(i), 140, color, 'f')
+end
+textm(lat_sta+0.02, lon_sta+0.01, sta, 'FontSize', 12)
+hypotenuse = 0.07;
+if earthquake_number >=6 && earthquake_number<=9
+    lat_az = -21.85;
+    lon_az = -67.60;
+    u = hypotenuse*sind(360-eq(earthquake_number).az-90); %vertical
+    v = hypotenuse*cosd(360-eq(earthquake_number).az-90); %horizontal
+elseif earthquake_number >=2 && earthquake_number<=5
+    lat_az = -22.7;
+    lon_az = -67.60;
+    u = hypotenuse*cosd(eq(earthquake_number).az); %vertical
+    v = hypotenuse*sind(eq(earthquake_number).az); %horizontal
+elseif earthquake_number >=10 && earthquake_number<=14
+    lat_az = -22.7;
+    lon_az = -66.95;
+    u = hypotenuse*sind(eq(earthquake_number).az-90); %vertical
+    v = hypotenuse*-cosd(eq(earthquake_number).az-90); %horizontal
+end
+quiverm(lat_az, lon_az,u, v, 'k')
+directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
+filename = sprintf('%s_stations_slowness_amps_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename_wPath = fullfile(directory,filename);
+hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+%%
+
+%partial_melt_percent = partial_melt_revised(delay_corrected, aoi, 1, 20);
 
 
 

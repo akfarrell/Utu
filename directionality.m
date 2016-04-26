@@ -60,6 +60,8 @@ elseif earthquake_number == 11
     w_clean(6*3:6*3+2)=[]; %remove station PLQU - noise SSSZ2
 elseif earthquake_number == 12
     w_clean(23*3:23*3+2)=[]; %remove station PLTP - noise SSSZ3
+elseif earthquake_number == 14
+    w_clean(2) = []; %remove station PLO7 - awful SSSZ5
 end
 
 n = 3; 

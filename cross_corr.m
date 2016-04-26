@@ -107,6 +107,8 @@ elseif strcmp(eq.name, 'SSSZ2')
     w(6)=[]; %remove station PLQU - noise SSSZ2
 elseif strcmp(eq.name, 'SSSZ3')
     w(23)=[]; %remove station PLTP - noise SSSZ3
+elseif strcmp(eq.name, 'SSSZ5')
+    w(2) = []; %remove station PLO7 - awful SSSZ5
 end
 
 %------------------------------------------------------
@@ -240,12 +242,34 @@ elseif strcmp(name, 'SSSZ3')
     tshift(23)=tshift(23)-0.1;
     tshift(24)=tshift(24)-1;
 elseif strcmp(name, 'SSSZ4')
-    tshift(2)=tshift(2)+1;
-    tshift(5)=tshift(5)-3;
-    tshift(7)=tshift(7)+1;
-    tshift(9)=tshift(9)-3;
-    tshift(11)=tshift(11)-3;
-    tshift(13)=tshift(13)+1;
+    tshift(2)=tshift(2)+1.5;
+    tshift(5)=tshift(5)-4;
+    tshift(7)=tshift(7)+1.2;
+    tshift(10)=tshift(10)-3.5;
+    tshift(12)=tshift(12)-3.7;
+    tshift(13)=tshift(13)-0.2;
+    tshift(14)=tshift(14)+1;
+elseif strcmp(name, 'SSSZ5')
+    tshift(1) = 0;
+    tshift(2) = 0.8;
+    tshift(3) = 1.2;
+    tshift(4) = 1.7;
+    tshift(5) = 2;
+    tshift(6) = 1.7;
+    tshift(7) = 2;
+    tshift(8) = 2;
+    tshift(9) = 2;
+    tshift(10) = 2.1;
+    tshift(11) = 1.9;
+    tshift(12) = 2.1;
+    tshift(13) = 2.4;
+    tshift(14) = 2.4;
+    tshift(15) = 2.4;
+    tshift(16) = 2.8;
+    tshift(17) = 2.8;
+    tshift(18) = 3.5;
+    tshift(19) = 3.3;
+    tshift(20) = 3.8;
 end
 max(tshift)
 min(tshift)
@@ -267,7 +291,7 @@ plot(C,'lag'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,
 %figure 6
 plot(C,'corr'); set(gca,'xticklabel',get(wfilt,'station'),'yticklabel',get(wfilt,'station'), 'FontSize', 8),xlabel('Station', 'FontSize', 12), ylabel('Station', 'FontSize', 12)
 %figure 7
-plotw_rs(wfilt,isort,iabs,tshift,tmark,[],[],pmax,iintp,inorm,tlims,2,azcen,iunit,imap);
+plotw_rs(wfilt,isort,iabs,tshift,tmark,T1,T2,pmax,iintp,inorm,tlims,2,azcen,iunit,imap);
 
 %figure 8
 figure; hold on;
