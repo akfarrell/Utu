@@ -7,7 +7,6 @@ siteSta = sort(siteSta);
 
 cellyQ = cell(1+numel(siteSta), 5); %make cell array
 cellyQ(2:numel(siteSta)+1,1) = siteSta;
-%stations_head = {'JSZ1', 'JSZ2', 'JSZ3', 'JSZ4'};
 
 t = text_read();
 mynames = fieldnames(t);
@@ -17,12 +16,13 @@ cellyT = cellyQ;
 %for number, need to use celly{index, index} = number;
 for k = 1:numel(siteSta)
     for j = 1:numel(mynames)
-        mynames{j}
+        %mynames{j}
         mynames2 = fieldnames(t.(mynames{j}));
-        %mynames2(5)
-        Q = t.(mynames{j}).(mynames2{5}).Q
-        Stationzz = t.(mynames{j}).(mynames2{5}).Station;
-        Time_offset = t.(mynames{j}).(mynames2{5}).Time_offset;
+        filename = sprintf('%s_output_diffFreq_0pt3750_1pt5000',mynames{j});
+        index = find(strcmp(mynames2, filename));
+        Q = t.(mynames{j}).(mynames2{index}).Q;
+        Stationzz = t.(mynames{j}).(mynames2{index}).Station;
+        Time_offset = t.(mynames{j}).(mynames2{index}).Time_offset;
         len = numel(Stationzz);
         for i=1:len
             if strcmp(Stationzz{i}, siteSta{k})

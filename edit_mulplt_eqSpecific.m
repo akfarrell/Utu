@@ -184,6 +184,7 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
                 range_val = -10;
                 data = data(index-range_val:index+range_val+70);
             elseif wavnum == 3
+                range_val = 70;
                 data = data(index-range_val:index+range_val);
             elseif wavnum == 9
                 range_val = 20;
@@ -194,6 +195,9 @@ function [index_values, time_values, m_values] = edit_mulplt_eqSpecific(w, align
             elseif wavnum == 18
                 range_val = -50;
                 data = data(index-range_val:index+150);
+            elseif wavnum == 4
+                range_val = 100;
+                data = data(index-range_val:index);
             else
                 hu = 'bu'
                 range_val = 30;
@@ -302,10 +306,12 @@ time_value
 %     end
 xlabel('Time');
 if exist('delay2', 'var')
-    filename = sprintf('%s_%s_waveforms_%1.4f_%1.4f_delay.png',name,id,fil(1),fil(2));
+    filename = sprintf('%s_%s_waveforms_%1.4f_%1.4f_delay.pdf',name,id,fil(1),fil(2));
 else
-    filename = sprintf('%s_%s_waveforms_%1.4f_%1.4f.png',name,id,fil(1),fil(2));
+    filename = sprintf('%s_%s_waveforms_%1.4f_%1.4f.pdf',name,id,fil(1),fil(2));
 end
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
 filename_wPath = fullfile(directory,filename);
-hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+fp = fillPage(h, 'margins', [0 0 0 0], 'papersize', [8.5 11]);
+print(h, '-dpdf', '-r400',filename_wPath);
+%hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'pdf');

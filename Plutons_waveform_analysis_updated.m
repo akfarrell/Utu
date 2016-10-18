@@ -9,6 +9,7 @@ addpath('data_func_matTaup/')
 addpath('lldistkm/')
 addpath('latlonutm/Codes/matlab/')
 addpath('readhgt/')
+addpath('fillPage/')
 addpath('pathdist_v4')
 addpath('scalebar_v3/scalebar')
 NEWGISMODIR=fullfile('/raid/apps/matlab/toolbox/GISMO/startup_GISMO.m');
@@ -17,7 +18,7 @@ addpath('/raid/apps/src/gismotools/GISMO')
 startup_GISMO
 
 ds = datasource('antelope', '/raid/data/antelope/databases/PLUTONS/dbmerged');
-earthquake_number = 8;
+earthquake_number = 3; %need to run 10
 scnl = scnlobject('*', 'HHZ', 'PL');
 
 utu_lat = -22.27;
@@ -353,26 +354,27 @@ end;
 sig_freq = [get(w_clean_sort, 'FFT_DOM')];
 sta = [get(w_clean_sort, 'station')];
 
-[stas,Q] = q_calc(w_clean_sort, 5.15, 20, sig_freq);
+
 %%
-[P_az, P_inc] = directionality(eq(earthquake_number), earthquake_number, index_values, fil, sig_freq, order)
+%[P_az, P_inc] = directionality(eq(earthquake_number), earthquake_number, index_values, fil, sig_freq, order)
 %time_values in dnum
 %%
 % -------- Defining AOI that I'm using ----------
 % ---------Comment out one or the other ----------
-if earthquake_number == 3
+if earthquake_number >= 3 && earthquake_number <= 5
     aoi = 10.5%P_inc
-elseif earthquake_number == 10
+elseif earthquake_number >= 10
     aoi = 19
-elseif earthquake_number == 8
+elseif earthquake_number >= 6 && earthquake_number <= 9
     aoi = 4
-else
-    aoi = 19
+elseif earthquake_number == 2
+    aoi = 12
     %aoi = eq(earthquake_number).aoi
     %aoi = P_inc
     %aoi = 3.3
 end
 
+[stas,Q] = q_calc(w_clean_sort, 5.15, 20, sig_freq, aoi);
 
 for i=1:len
     for k = 1:numel(siteSta) 
@@ -573,9 +575,9 @@ elseif earthquake_number >=10 && earthquake_number<=14
 end
 quiverm(lat_az, lon_az,u, v, 'k')
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
-filename = sprintf('%s_wavefront_line_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename = sprintf('%s_wavefront_line_%1.4f_%1.4f.pdf',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
-hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'pdf');
 
 
 
@@ -685,6 +687,22 @@ elseif earthquake_number == 8
     warning('Earthquake Mean Delay and Mean Amp Values Changed!')
     mean_delay = mean_delay+0.01 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
     %mean_amp = mean_amp-0.015 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%% 
+elseif earthquake_number == 9
+    warning('Earthquake Mean Delay and Mean Amp Values Changed!')
+    mean_delay = mean_delay-0.08 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+    %mean_amp = mean_amp-0.015 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%% 
+elseif earthquake_number == 4
+    warning('Earthquake Mean Delay and Mean Amp Values Changed!')
+    %mean_delay = mean_delay+0.01 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+    mean_amp = mean_amp+0.02 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%% 
+elseif earthquake_number == 12
+    warning('Earthquake Mean Delay and Mean Amp Values Changed!')
+    mean_delay = mean_delay-0.125 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+    mean_amp = mean_amp-0.04 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%% 
+elseif earthquake_number == 14
+    warning('Earthquake Mean Delay and Mean Amp Values Changed!')
+    mean_delay = mean_delay-0.08 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%%
+    mean_amp = mean_amp-0.03 %%%%%%%%%%%%%%%%%%%%% CHANGE IF ANY CHANGES!!!!!! %%%%%%%%%%% 
 end
 warning('off')
 %m_Q = linspace(mean_Q,mean_Q, 100);
@@ -719,9 +737,10 @@ text(derp+30, delay_vals, sta);
 xlabel('Distance (m)')
 ylabel('Time Values with Reference to Closest Station (s)')
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
-filename = sprintf('%s_timeVsDist_grid_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename = sprintf('%s_timeVsDist_grid_%1.4f_%1.4f.pdf',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
-hgexport(g, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+fp = fillPage(g, 'margins', [0 0 0 0], 'papersize', [10 8.5]);
+print(g, '-dpdf', '-r400',filename_wPath);
 
 
 r = figure;
@@ -754,11 +773,12 @@ xlim([-0.02, max(delay_vals)+0.08]);
 xlabel('Time Delay (s)', 'FontSize', 12)
 ylabel('Normalized Amplitude', 'FontSize', 12)
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
-filename = sprintf('%s_AmpvsDelay_grid_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename = sprintf('%s_AmpvsDelay_grid_%1.4f_%1.4f.pdf',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
-hgexport(r, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+fp = fillPage(r, 'margins', [0 0 0 0], 'papersize', [10 8.5]);
+print(r, '-dpdf', '-r400',filename_wPath);
 
-
+%%
 
 h = figure;
 latlim = [-22.75 -21.75]; %[southern_limit northern_limit] 
@@ -809,9 +829,10 @@ elseif earthquake_number >=10 && earthquake_number<=14
 end
 quiverm(lat_az, lon_az,u, v, 'k')
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', eq(earthquake_number).name);
-filename = sprintf('%s_stations_slowness_amps_%1.4f_%1.4f.png',eq(earthquake_number).name,fil(1),fil(2));
+filename = sprintf('%s_stations_slowness_amps_%1.4f_%1.4f.pdf',eq(earthquake_number).name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
-hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+fp = fillPage(h, 'margins', [0 0 0 0], 'papersize', [10 8.5]);
+print(h, '-dpdf', '-r400',filename_wPath);
 %%
 
 %partial_melt_percent = partial_melt_revised(delay_corrected, aoi, 1, 20);

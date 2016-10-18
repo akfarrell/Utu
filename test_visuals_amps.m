@@ -78,5 +78,5 @@ meanN = sumN'./c
 % ------------ Plotting ------------%
 num_eqs = derpy(2);
 %ID - 'norm' or 'revnorm'
-plotting_allEq_amps(siteStruct, siteSta, meanN, num_eqs, 'norm', c)
-plotting_allEq_amps(siteStruct, siteSta, meanR, num_eqs, 'revnorm', c)
+%plotting_allEq_amps(siteStruct, siteSta, meanN, num_eqs, 'norm', c,scale_factor)
+%plotting_allEq_amps(siteStruct, siteSta, meanR, num_eqs, 'revnorm', c)

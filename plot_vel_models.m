@@ -6,7 +6,7 @@ vel_deps_corr = (-vel_deps+3.5);
 p_vels_extrap = p_vels;
 p_vels_extrap(76:329) = p_vels(75); %use 5712.2447 for values that would be in magma body
 
-
+%%
 % ------ Plot Figure -------- %
 close all;
 r = figure;
@@ -20,4 +20,4 @@ xlabel({'';'P-wave velocity (km/s)'}, 'FontSize', 14)
 ylabel('Depth (km)', 'FontSize', 14)
 ylim([vel_deps_corr(end)-1 vel_deps_corr(1)+1]);
 set(gca,'fontsize', 14)
-hgexport(r, 'Velocities_used.png', hgexport('factorystyle'), 'Format', 'png');
+hgexport(r, 'Velocities_used.pdf', hgexport('factorystyle'), 'Format', 'pdf');

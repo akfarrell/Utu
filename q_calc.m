@@ -1,4 +1,4 @@
-function [stations,Q] = q_calc(waveform_object, velocity, depth, frequency)
+function [stations,Q] = q_calc(waveform_object, velocity, depth, frequency, aoi)
 % q_calc  Calculate q_values using the amplitudes at stations. The largest
 % amplitude is considered A0, so that station has an infinite q-value
 %   q_vals = q_calc(waveform_object, velocity, frequency) calculates q-values from amplitudes
@@ -20,13 +20,14 @@ function [stations,Q] = q_calc(waveform_object, velocity, depth, frequency)
 %   comps question
 
     ln = @log;
+    dist_of_layer = depth/cosd(aoi)
     stations = char([get(waveform_object, 'station')]);
-    amp_abs = [get(waveform_object, 'AMP_ABS')]
+    amp_abs = [get(waveform_object, 'AMP_ABS')];
     max_val = abs(max(max(amp_abs), min(amp_abs)));
     Q = [];
     for i = 1:numel(amp_abs)
         %try
         %catch err
-            Q(i) = (-pi*(depth/velocity)*frequency(i))/(ln(amp_abs(i)/max_val));
+            Q(i) = (-pi*(dist_of_layer/velocity)*frequency(i))/(ln(amp_abs(i)/max_val));
         %end
     end

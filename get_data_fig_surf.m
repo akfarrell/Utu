@@ -1,16 +1,24 @@
 close all
-%r=openfig('lvztop_depths_surfaceplot');
-r=openfig('Alex_Fig');
-hold on
-ch=get(gca,'ch');
-x=get(ch,'xd')';
-y=get(ch,'yd')';
+% r=openfig('lvztop_depths_surfaceplot');
+% r=openfig('Alex_Fig');
+% hold on
+% ch=get(gca,'ch');
+% x=get(ch,'xd')';
+% y=get(ch,'yd')';
+% 
+% %lat_sta
+% %lon_sta
+% z=get(ch,'zd');
 
-%lat_sta
-%lon_sta
+%%
+load('rot_wt_boot_all_a2.5_R.moho_0.0.0.360.10.10.CMP.mat')
+% x = longrid;
+% y = latgrid;
+z = (mean(DEPS,3))';
+x = longrid(:,1)';
+y = latgrid(1,:)';
+%%
 
-
-z=get(ch,'zd');
 zsize = size(z);
 z_mean = nanmean(nanmean(z));
 z_max = max(max(z));
@@ -31,6 +39,10 @@ warning('Replacing NaNs with min(z)!!!!')
 %warning('Replacing NaNs with zeros!!!!')
 warning('off')
 
+lat_sta = siteStruct.lat
+lon_sta = siteStruct.lon
+sta = siteStruct.sta
+
 for i = 1:numel(lat_sta)
     depths_at_stas_mean(i) = interp2(x,y,zmean,lon_sta(i), lat_sta(i));
     depths_at_stas_min(i) = interp2(x,y,zmin,lon_sta(i), lat_sta(i));
@@ -42,6 +54,7 @@ end
 % depths_at_stas_min(vecs)
 % depths_at_stas_max(vecs)
 %%
+r = figure()
 depths_at_stas = depths_at_stas_mean;
 [lowest_val,index_low] = min(depths_at_stas)
 [highest_val,index_high] = max(depths_at_stas)
@@ -52,6 +65,6 @@ text(lon_sta-0.01, lat_sta, depths_at_stas, sta)
 hold off
 
 directory = sprintf('/home/a/akfarrell/Uturuncu/Synth_data');
-filename = sprintf('elevs_APMB_stas.fig');
+filename = sprintf('elevs_APMB_stas_newest.fig');
 filename_wPath = fullfile(directory,filename);
 savefig(r, filename_wPath);

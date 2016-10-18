@@ -19,8 +19,8 @@ function all_eq_all_filt_struct = text_read()
 %   Author: Alexandra Farrell 2015/6/16
 %
 clear
-%directories = dir('*SZ*');
-directories = dir('JSZ*');
+directories = dir('*SZ*');
+%directories = dir('JSZ*');
 for k = length(directories):-1:1
     if ~directories(k).isdir
         directories(k) = [];

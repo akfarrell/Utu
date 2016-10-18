@@ -167,9 +167,9 @@ quiverm(lat_az, lon_az,u, v, 'k')
 title(sprintf('%s Q Values',name))
 hold off
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
-filename = sprintf('%s_q_values_coloredDots_%1.4f_%1.4f.png',name,fil(1),fil(2));
+filename = sprintf('%s_q_values_coloredDots_%1.4f_%1.4f.pdf',name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
-hgexport(p, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+hgexport(p, filename_wPath, hgexport('factorystyle'), 'Format', 'pdf');
 
 %---------------- Fifth Figure - Slowness Dots -------------
 h=figure; hold on;
@@ -187,6 +187,6 @@ quiverm(lat_az, lon_az,u, v, 'k')
 title(sprintf('%s Slowness',name))
 hold off
 directory = sprintf('/home/a/akfarrell/Uturuncu/%s/figures', name);
-filename = sprintf('%s_slowness1_%1.4f_%1.4f.png',name,fil(1),fil(2));
+filename = sprintf('%s_slowness1_%1.4f_%1.4f.pdf',name,fil(1),fil(2));
 filename_wPath = fullfile(directory,filename);
-hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'png');
+hgexport(h, filename_wPath, hgexport('factorystyle'), 'Format', 'pdf');
